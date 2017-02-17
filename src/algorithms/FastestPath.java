@@ -1,10 +1,10 @@
-package Simulator;
+package algorithms;
 
 /**
  * Created by SuyashLakhotia on 17/2/17.
  */
 
-public class Simulator {
+public class FastestPath {
     public static void main(String[] args) {
 
     }
