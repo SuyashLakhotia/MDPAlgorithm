@@ -5,7 +5,5 @@ package algorithms;
  */
 
 public class Exploration {
-    public static void main(String[] args) {
-
-    }
+    // Exploration Algorithm
 }

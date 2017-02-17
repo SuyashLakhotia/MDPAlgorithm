@@ -5,7 +5,5 @@ package algorithms;
  */
 
 public class FastestPath {
-    public static void main(String[] args) {
-
-    }
+    // Fastest Path Algorithm
 }
