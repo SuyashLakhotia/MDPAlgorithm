@@ -1,0 +1,18 @@
+# IntelliJ IDEA
+.idea/
+out/
+HackerRank.iml
+
+# Java Class Files
+*.class
+
+# Java Package Files
+*.jar
+*.war
+*.ear
+
+# Java VM Crash Logs
+hs_err_pid*
+
+# OS X
+.DS_Store
