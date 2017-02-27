@@ -3,6 +3,8 @@ package robot;
 import robot.Constants.DIRECTION;
 import robot.Constants.MOVEMENT;
 
+import java.util.concurrent.TimeUnit;
+
 // @formatter:off
 /**
  * Represents the robot moving in the arena.
@@ -27,12 +29,12 @@ public class Robot {
     private int posRow;
     private int posCol;
     private DIRECTION robotDir;
-    private int speed;
     public Sensor LRFront;
     public Sensor SRFrontLeft;
     public Sensor SRFrontRight;
     public Sensor SRLeft;
     public Sensor SRRight;
+    private int speed = 1000; // time taken (ms) for one movement
 
     public Robot(int row, int col) {
         posRow = row;
@@ -42,8 +44,8 @@ public class Robot {
         LRFront = new Sensor(Constants.SENSOR_SHORT_RANGE, this.posRow + 1, this.posCol, this.robotDir);
         SRFrontLeft = new Sensor(Constants.SENSOR_SHORT_RANGE, this.posRow + 1, this.posCol - 1, this.robotDir);
         SRFrontRight = new Sensor(Constants.SENSOR_SHORT_RANGE, this.posRow + 1, this.posCol + 1, this.robotDir);
-        SRLeft = new Sensor(Constants.SENSOR_SHORT_RANGE, this.posRow + 1, this.posCol - 1, findNewDirection(MOVEMENT.LEFT));
-        SRRight = new Sensor(Constants.SENSOR_LONG_RANGE, this.posRow + 1, this.posCol + 1, findNewDirection(MOVEMENT.RIGHT));
+        SRLeft = new Sensor(Constants.SENSOR_SHORT_RANGE, this.posRow, this.posCol - 1, findNewDirection(MOVEMENT.LEFT));
+        SRRight = new Sensor(Constants.SENSOR_LONG_RANGE, this.posRow, this.posCol + 1, findNewDirection(MOVEMENT.RIGHT));
     }
 
     public void setRobotPos(int row, int col) {
@@ -68,6 +70,13 @@ public class Robot {
     }
 
     public void move(MOVEMENT m) {
+        // Emulate real movement by pausing execution.
+        try {
+            TimeUnit.MILLISECONDS.sleep(speed);
+        } catch (InterruptedException e) {
+            System.out.println("Something went wrong in Robot.move()!");
+        }
+
         switch (m) {
             case FORWARD:
                 switch (robotDir) {
@@ -85,14 +94,68 @@ public class Robot {
                         break;
                 }
                 break;
+            case BACKWARD:
+                switch (robotDir) {
+                    case NORTH:
+                        posRow--;
+                        break;
+                    case EAST:
+                        posCol--;
+                        break;
+                    case SOUTH:
+                        posRow++;
+                        break;
+                    case WEST:
+                        posCol++;
+                        break;
+                }
+                break;
             case RIGHT:
             case LEFT:
                 robotDir = findNewDirection(m);
+                break;
+            case UTURN:
+                robotDir = findNewDirection(MOVEMENT.RIGHT);
+                robotDir = findNewDirection(MOVEMENT.RIGHT);
                 break;
             default:
                 System.out.println("Error in Robot.move()!");
                 break;
         }
+    }
+
+    public void setSensors() {
+        switch (robotDir) {
+            case NORTH:
+                LRFront.setSensor(this.posRow + 1, this.posCol, this.robotDir);
+                SRFrontLeft.setSensor(this.posRow + 1, this.posCol - 1, this.robotDir);
+                SRFrontRight.setSensor(this.posRow + 1, this.posCol + 1, this.robotDir);
+                SRLeft.setSensor(this.posRow, this.posCol - 1, findNewDirection(MOVEMENT.LEFT));
+                SRRight.setSensor(this.posRow, this.posCol + 1, findNewDirection(MOVEMENT.RIGHT));
+                break;
+            case EAST:
+                LRFront.setSensor(this.posRow, this.posCol + 1, this.robotDir);
+                SRFrontLeft.setSensor(this.posRow + 1, this.posCol + 1, this.robotDir);
+                SRFrontRight.setSensor(this.posRow - 1, this.posCol + 1, this.robotDir);
+                SRLeft.setSensor(this.posRow + 1, this.posCol, findNewDirection(MOVEMENT.LEFT));
+                SRRight.setSensor(this.posRow - 1, this.posCol, findNewDirection(MOVEMENT.RIGHT));
+                break;
+            case SOUTH:
+                LRFront.setSensor(this.posRow - 1, this.posCol, this.robotDir);
+                SRFrontLeft.setSensor(this.posRow - 1, this.posCol + 1, this.robotDir);
+                SRFrontRight.setSensor(this.posRow - 1, this.posCol - 1, this.robotDir);
+                SRLeft.setSensor(this.posRow, this.posCol + 1, findNewDirection(MOVEMENT.LEFT));
+                SRRight.setSensor(this.posRow, this.posCol - 1, findNewDirection(MOVEMENT.RIGHT));
+                break;
+            case WEST:
+                LRFront.setSensor(this.posRow, this.posCol - 1, this.robotDir);
+                SRFrontLeft.setSensor(this.posRow - 1, this.posCol - 1, this.robotDir);
+                SRFrontRight.setSensor(this.posRow + 1, this.posCol - 1, this.robotDir);
+                SRLeft.setSensor(this.posRow - 1, this.posCol, findNewDirection(MOVEMENT.LEFT));
+                SRRight.setSensor(this.posRow + 1, this.posCol, findNewDirection(MOVEMENT.RIGHT));
+                break;
+        }
+
     }
 
     public DIRECTION findNewDirection(MOVEMENT m) {

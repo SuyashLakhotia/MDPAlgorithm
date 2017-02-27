@@ -22,4 +22,10 @@ public class Sensor {
         this.sensorPosCol = col;
         this.sensorDir = dir;
     }
+
+    public void setSensor(int row, int col, DIRECTION dir) {
+        this.sensorPosRow = row;
+        this.sensorPosCol = col;
+        this.sensorDir = dir;
+    }
 }
