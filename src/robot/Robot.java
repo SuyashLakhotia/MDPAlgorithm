@@ -1,5 +1,6 @@
 package robot;
 
+import map.Map;
 import robot.Constants.DIRECTION;
 import robot.Constants.MOVEMENT;
 
@@ -9,13 +10,13 @@ import java.util.concurrent.TimeUnit;
 /**
  * Represents the robot moving in the arena.
  *
- * The robot is represented by a 2 x 2 cell space as below:
+ * The robot is represented by a 3 x 3 cell space as below:
  *
- *          ^  ^  ^
- *         SR LR SR
- *        [X]   [X]
- *   < SR           SR >
- *        [X]   [X]
+ *          ^   ^   ^
+ *         SR  LR  SR
+ *        [X] [X] [X]
+ *   < SR [X] [X] [X] SR >
+ *        [X] [X] [X]
  *
  * SR = Short Range Sensor, LR = Long Range Sensor
  *
@@ -23,11 +24,9 @@ import java.util.concurrent.TimeUnit;
  */
 // @formatter:on
 
-// @TODO: Robot speed?
-
 public class Robot {
-    private int posRow;
-    private int posCol;
+    private int posRow; // center cell
+    private int posCol; // center cell
     private DIRECTION robotDir;
     public Sensor LRFront;
     public Sensor SRFrontLeft;
@@ -41,11 +40,11 @@ public class Robot {
         posCol = col;
         robotDir = Constants.START_DIR;
 
-        LRFront = new Sensor(Constants.SENSOR_SHORT_RANGE, this.posRow + 1, this.posCol, this.robotDir);
+        LRFront = new Sensor(Constants.SENSOR_LONG_RANGE, this.posRow + 1, this.posCol, this.robotDir);
         SRFrontLeft = new Sensor(Constants.SENSOR_SHORT_RANGE, this.posRow + 1, this.posCol - 1, this.robotDir);
         SRFrontRight = new Sensor(Constants.SENSOR_SHORT_RANGE, this.posRow + 1, this.posCol + 1, this.robotDir);
         SRLeft = new Sensor(Constants.SENSOR_SHORT_RANGE, this.posRow, this.posCol - 1, findNewDirection(MOVEMENT.LEFT));
-        SRRight = new Sensor(Constants.SENSOR_LONG_RANGE, this.posRow, this.posCol + 1, findNewDirection(MOVEMENT.RIGHT));
+        SRRight = new Sensor(Constants.SENSOR_SHORT_RANGE, this.posRow, this.posCol + 1, findNewDirection(MOVEMENT.RIGHT));
     }
 
     public void setRobotPos(int row, int col) {
@@ -164,5 +163,15 @@ public class Robot {
         } else {
             return DIRECTION.getPrevious(robotDir);
         }
+    }
+
+    public int[] sense(Map explorationMap, Map realMap) {
+        int[] result = new int[5];
+        result[0] = LRFront.sense(explorationMap, realMap);
+        result[1] = SRFrontLeft.sense(explorationMap, realMap);
+        result[2] = SRFrontRight.sense(explorationMap, realMap);
+        result[3] = SRLeft.sense(explorationMap, realMap);
+        result[4] = SRRight.sense(explorationMap, realMap);
+        return result;
     }
 }
