@@ -43,7 +43,7 @@ public class Sensor {
                         return i;
                     }
                 }
-                return 0;
+                return -1;
             case EAST:
                 for (int i = 1; i <= this.range; i++) {
                     if (this.sensorPosCol + i >= 15) { // touching east wall
@@ -56,7 +56,7 @@ public class Sensor {
                         return i;
                     }
                 }
-                return 0;
+                return -1;
             case SOUTH:
                 for (int i = 1; i <= this.range; i++) {
                     if (this.sensorPosRow - i <= -1) { // touching south wall
@@ -69,7 +69,7 @@ public class Sensor {
                         return i;
                     }
                 }
-                return 0;
+                return -1;
             case WEST:
                 for (int i = 1; i <= this.range; i++) {
                     if (this.sensorPosCol - i <= -1) { // touching west wall
@@ -82,8 +82,8 @@ public class Sensor {
                         return i;
                     }
                 }
-                return 0;
+                return -1;
         }
-        return 0;
+        return -1;
     }
 }
