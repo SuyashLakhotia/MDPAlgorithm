@@ -1,8 +1,8 @@
 package robot;
 
 import map.Map;
-import robot.Constants.DIRECTION;
-import robot.Constants.MOVEMENT;
+import robot.RobotConstants.DIRECTION;
+import robot.RobotConstants.MOVEMENT;
 
 import java.util.concurrent.TimeUnit;
 
@@ -38,13 +38,13 @@ public class Robot {
     public Robot(int row, int col) {
         posRow = row;
         posCol = col;
-        robotDir = Constants.START_DIR;
+        robotDir = RobotConstants.START_DIR;
 
-        LRFront = new Sensor(Constants.SENSOR_LONG_RANGE, this.posRow + 1, this.posCol, this.robotDir);
-        SRFrontLeft = new Sensor(Constants.SENSOR_SHORT_RANGE, this.posRow + 1, this.posCol - 1, this.robotDir);
-        SRFrontRight = new Sensor(Constants.SENSOR_SHORT_RANGE, this.posRow + 1, this.posCol + 1, this.robotDir);
-        SRLeft = new Sensor(Constants.SENSOR_SHORT_RANGE, this.posRow, this.posCol - 1, findNewDirection(MOVEMENT.LEFT));
-        SRRight = new Sensor(Constants.SENSOR_SHORT_RANGE, this.posRow, this.posCol + 1, findNewDirection(MOVEMENT.RIGHT));
+        LRFront = new Sensor(RobotConstants.SENSOR_LONG_RANGE, this.posRow + 1, this.posCol, this.robotDir);
+        SRFrontLeft = new Sensor(RobotConstants.SENSOR_SHORT_RANGE, this.posRow + 1, this.posCol - 1, this.robotDir);
+        SRFrontRight = new Sensor(RobotConstants.SENSOR_SHORT_RANGE, this.posRow + 1, this.posCol + 1, this.robotDir);
+        SRLeft = new Sensor(RobotConstants.SENSOR_SHORT_RANGE, this.posRow, this.posCol - 1, findNewDirection(MOVEMENT.LEFT));
+        SRRight = new Sensor(RobotConstants.SENSOR_SHORT_RANGE, this.posRow, this.posCol + 1, findNewDirection(MOVEMENT.RIGHT));
     }
 
     public void setRobotPos(int row, int col) {

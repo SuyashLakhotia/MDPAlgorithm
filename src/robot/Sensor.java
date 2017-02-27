@@ -1,7 +1,7 @@
 package robot;
 
 import map.Map;
-import robot.Constants.DIRECTION;
+import robot.RobotConstants.DIRECTION;
 
 /**
  * Represents a sensor mounted on the robot.

@@ -8,7 +8,7 @@ package robot;
 
 // @TODO: Range for short range & long range sensors?
 
-public class Constants {
+public class RobotConstants {
     public static final int GOAL_ROW = 18;                          // row no. of goal cell
     public static final int GOAL_COL = 13;                          // col no. of goal cell
     public static final int START_ROW = 1;                          // row no. of start cell

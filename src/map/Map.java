@@ -13,14 +13,14 @@ public class Map {
      * Initialises a Map object with a grid of Cell objects.
      */
     public Map() {
-        grid = new Cell[Constants.MAP_ROWS][Constants.MAP_COLS];
 
+        grid = new Cell[MapConstants.MAP_ROWS][MapConstants.MAP_COLS];
         for (int row = 0; row < grid.length; row++) {
             for (int col = 0; col < grid[0].length; col++) {
                 grid[row][col] = new Cell(row, col);
 
                 // Set the virtual walls of the arena
-                if (row == 0 || col == 0 || row == Constants.MAP_ROWS - 1 || col == Constants.MAP_COLS - 1) {
+                if (row == 0 || col == 0 || row == MapConstants.MAP_ROWS - 1 || col == MapConstants.MAP_COLS - 1) {
                     grid[row][col].setVirtualWall(true);
                 }
             }
@@ -31,7 +31,7 @@ public class Map {
      * Returns true if the row and column values are valid.
      */
     public boolean checkValidCoordinates(int row, int col) {
-        return row >= 0 && col >= 0 && row < Constants.MAP_ROWS && col < Constants.MAP_COLS;
+        return row >= 0 && col >= 0 && row < MapConstants.MAP_ROWS && col < MapConstants.MAP_COLS;
     }
 
     /**
@@ -80,7 +80,7 @@ public class Map {
         if (row >= 1) {
             grid[row - 1][col].setVirtualWall(obstacle);            // bottom cell
 
-            if (col < Constants.MAP_COLS - 1) {
+            if (col < MapConstants.MAP_COLS - 1) {
                 grid[row - 1][col + 1].setVirtualWall(obstacle);    // bottom-right cell
             }
 
@@ -89,10 +89,10 @@ public class Map {
             }
         }
 
-        if (row < Constants.MAP_ROWS - 1) {
+        if (row < MapConstants.MAP_ROWS - 1) {
             grid[row + 1][col].setVirtualWall(obstacle);            // top cell
 
-            if (col < Constants.MAP_COLS - 1) {
+            if (col < MapConstants.MAP_COLS - 1) {
                 grid[row + 1][col + 1].setVirtualWall(obstacle);    // top-right cell
             }
 
@@ -105,7 +105,7 @@ public class Map {
             grid[row][col - 1].setVirtualWall(obstacle);            // left cell
         }
 
-        if (col < Constants.MAP_COLS - 1) {
+        if (col < MapConstants.MAP_COLS - 1) {
             grid[row][col + 1].setVirtualWall(obstacle);            // right cell
         }
     }

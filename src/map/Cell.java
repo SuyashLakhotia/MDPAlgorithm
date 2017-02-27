@@ -51,10 +51,10 @@ public class Cell {
     }
 
     public boolean inStartZone() {
-        return (this.row < 3 && this.col < 3);
+        return (this.row >= 0 && this.row <= 2 && this.col >= 0 && this.col <= 2);
     }
 
     public boolean inGoalZone() {
-        return (this.row > 16 && this.col > 11);
+        return (this.row <= MapConstants.GOAL_ROW + 1 && this.row >= MapConstants.GOAL_ROW - 1 && this.col <= MapConstants.GOAL_COL + 1 && this.col >= MapConstants.GOAL_COL - 1);
     }
 }
