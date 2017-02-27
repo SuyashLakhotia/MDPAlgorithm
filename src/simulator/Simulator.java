@@ -130,7 +130,6 @@ public class Simulator {
                         CardLayout cl = ((CardLayout) _mapCards.getLayout());
                         cl.show(_mapCards, "REAL_MAP");
                         realMap.repaint();
-                        generateMapDescriptor(realMap);
                         loadMapDialog.setVisible(false);
                     }
                 });
