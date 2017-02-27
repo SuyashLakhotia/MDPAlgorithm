@@ -126,11 +126,11 @@ public class Simulator {
 
                 loadMapButton.addMouseListener(new MouseAdapter() {
                     public void mousePressed(MouseEvent e) {
+                        loadMapDialog.setVisible(false);
                         readMapString(realMap, loadTF.getText());
                         CardLayout cl = ((CardLayout) _mapCards.getLayout());
                         cl.show(_mapCards, "REAL_MAP");
                         realMap.repaint();
-                        loadMapDialog.setVisible(false);
                     }
                 });
 
@@ -225,6 +225,7 @@ public class Simulator {
 
                 timeSaveButton.addMouseListener(new MouseAdapter() {
                     public void mousePressed(MouseEvent e) {
+                        timeExploDialog.setVisible(false);
                         timeLimit = (Integer.parseInt(timeTF.getText()));
                         CardLayout cl = ((CardLayout) _mapCards.getLayout());
                         cl.show(_mapCards, "TIME_EXPLORATION");
@@ -269,6 +270,7 @@ public class Simulator {
 
                 coverageSaveButton.addMouseListener(new MouseAdapter() {
                     public void mousePressed(MouseEvent e) {
+                        coverageExploDialog.setVisible(false);
                         coverageLimit = (Integer.parseInt(coverageTF.getText()));
                         new CoverageExploration().execute();
                         CardLayout cl = ((CardLayout) _mapCards.getLayout());
