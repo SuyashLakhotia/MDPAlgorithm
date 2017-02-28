@@ -33,7 +33,7 @@ public class Robot {
     public Sensor SRFrontRight;
     public Sensor SRLeft;
     public Sensor SRRight;
-    private int speed = 1000; // time taken (ms) for one movement
+    private int speed = 100; // time taken (ms) for one movement
 
     public Robot(int row, int col) {
         posRow = row;
