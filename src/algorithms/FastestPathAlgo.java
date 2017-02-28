@@ -12,14 +12,16 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Stack;
 
+// @formatter:off
 /**
  * Fastest path algorithm for the robot. Uses a version of the A* algorithm.
- * <p>
- * g(n) =  Real Cost from START to n
- * h(n) =  Heuristic Cost from n to GOAL
+ *
+ * g(n) = Real Cost from START to n
+ * h(n) = Heuristic Cost from n to GOAL
  *
  * @author Suyash Lakhotia
  */
+// @formatter:on
 
 public class FastestPathAlgo {
     private ArrayList<Cell> toVisit;        // array of Cells to be visited
