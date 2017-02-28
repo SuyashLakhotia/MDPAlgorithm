@@ -268,7 +268,7 @@ public class FastestPathAlgo {
                 temp = path.pop();
             }
 
-            System.out.println("MOVEMENT from" + bot.getRobotPosRow() + ", " + bot.getRobotPosCol() + " to " + temp.getRow() + " , " + temp.getCol());
+            System.out.println("MOVEMENT from (" + bot.getRobotPosRow() + ", " + bot.getRobotPosCol() + ") to (" + temp.getRow() + ", " + temp.getCol() + ")");
             targetDir = getTargetDir(bot.getRobotPosRow(), bot.getRobotPosCol(), bot.getRobotCurDir(), temp);
 
             if (bot.getRobotCurDir() != targetDir) {
