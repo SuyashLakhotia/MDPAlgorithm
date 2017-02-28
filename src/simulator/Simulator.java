@@ -191,9 +191,7 @@ public class Simulator {
                 realMap.repaint();
 
                 FastestPathAlgo fastestPath = new FastestPathAlgo(realMap, bot);
-                StringBuilder output = fastestPath.runFastestPath(realMap, 18, 13);
-                byte[] outputByteArray = String.valueOf(output).getBytes();
-                System.out.println(outputByteArray);
+                fastestPath.runFastestPath(18, 13);
 
                 return 222;
             }
@@ -205,7 +203,7 @@ public class Simulator {
         btn_FastestPath.addMouseListener(new MouseAdapter() {
             public void mousePressed(MouseEvent e) {
                 CardLayout cl = ((CardLayout) _mapCards.getLayout());
-                cl.show(_mapCards, "EXPLORATION");
+                cl.show(_mapCards, "REAL_MAP");
                 new FastestPath().execute();
             }
         });

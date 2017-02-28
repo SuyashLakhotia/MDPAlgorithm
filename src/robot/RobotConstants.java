@@ -20,6 +20,8 @@ public class RobotConstants {
     public static final int SENSOR_SHORT_RANGE = 3;                 // range of short range sensor (cells)
     public static final int SENSOR_LONG_RANGE = 7;                  // range of long range sensor (cells)
 
+    public static final int INFINITE_COST = 9999;
+
     public enum DIRECTION {
         NORTH, EAST, SOUTH, WEST;
 
@@ -37,7 +39,7 @@ public class RobotConstants {
     }
 
     public enum MOVEMENT {
-        FORWARD, BACKWARD, RIGHT, LEFT, UTURN;
+        FORWARD, BACKWARD, RIGHT, LEFT, UTURN, ERROR;
 
         public static char print(MOVEMENT m) {
             switch (m) {
@@ -51,6 +53,7 @@ public class RobotConstants {
                     return 'L';
                 case UTURN:
                     return 'U';
+                case ERROR:
                 default:
                     return 'E';
             }
