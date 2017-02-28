@@ -11,7 +11,7 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
 import static utils.MapDescriptor.generateMapDescriptor;
-import static utils.MapDescriptor.readMapString;
+import static utils.MapDescriptor.loadMapFromDisk;
 
 /**
  * Simulator for robot navigation in virtual arena.
@@ -127,7 +127,7 @@ public class Simulator {
                 loadMapButton.addMouseListener(new MouseAdapter() {
                     public void mousePressed(MouseEvent e) {
                         loadMapDialog.setVisible(false);
-                        readMapString(realMap, loadTF.getText());
+                        loadMapFromDisk(realMap, loadTF.getText());
                         CardLayout cl = ((CardLayout) _mapCards.getLayout());
                         cl.show(_mapCards, "REAL_MAP");
                         realMap.repaint();
