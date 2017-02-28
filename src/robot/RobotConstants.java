@@ -17,8 +17,8 @@ public class RobotConstants {
     public static final int TURN_COST = 20;                         // cost of RIGHT, LEFT movement
     public static final int UTURN_COST = 30;                        // cost of UTURN movement
     public static final DIRECTION START_DIR = DIRECTION.NORTH;      // start direction
-    public static final int SENSOR_SHORT_RANGE = 2;                 // range of short range sensor (cells)
-    public static final int SENSOR_LONG_RANGE = 4;                  // range of long range sensor (cells)
+    public static final int SENSOR_SHORT_RANGE = 3;                 // range of short range sensor (cells)
+    public static final int SENSOR_LONG_RANGE = 7;                  // range of long range sensor (cells)
 
     public enum DIRECTION {
         NORTH, EAST, SOUTH, WEST;
