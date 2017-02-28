@@ -151,7 +151,7 @@ public class Map extends JPanel {
      * well as the robot on-screen.
      */
     public void paintComponent(Graphics g) {
-        // Create the two-dimensional array of _DisplayCell objects for rendering.
+        // Create a two-dimensional array of _DisplayCell objects for rendering.
         _mapCells = new _DisplayCell[MapConstants.MAP_ROWS][MapConstants.MAP_COLS];
         for (int mapRow = 0; mapRow < MapConstants.MAP_ROWS; mapRow++) {
             for (int mapCol = 0; mapCol < MapConstants.MAP_COLS; mapCol++) {

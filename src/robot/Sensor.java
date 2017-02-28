@@ -28,7 +28,9 @@ public class Sensor {
         this.sensorDir = dir;
     }
 
-    // Returns the number of cells to the nearest obstacle / wall.
+    /**
+     * Returns the number of cells to the nearest detected obstacle or -1 if no obstacle is detected.
+     */
     public int sense(Map exploredMap, Map realMap) {
         switch (sensorDir) {
             case NORTH:

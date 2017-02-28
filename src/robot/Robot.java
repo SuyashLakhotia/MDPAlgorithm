@@ -68,6 +68,9 @@ public class Robot {
         return robotDir;
     }
 
+    /**
+     * Takes in a MOVEMENT and moves the robot accordingly by changing its position and direction.
+     */
     public void move(MOVEMENT m) {
         // Emulate real movement by pausing execution.
         try {
@@ -123,6 +126,9 @@ public class Robot {
         }
     }
 
+    /**
+     * Sets the sensors' position and direction values according to the robot's current position and direction.
+     */
     public void setSensors() {
         switch (robotDir) {
             case NORTH:
@@ -157,6 +163,9 @@ public class Robot {
 
     }
 
+    /**
+     * Uses the current direction of the robot and the given movement to find the new direction of the robot.
+     */
     public DIRECTION findNewDirection(MOVEMENT m) {
         if (m == MOVEMENT.RIGHT) {
             return DIRECTION.getNext(robotDir);
@@ -165,6 +174,11 @@ public class Robot {
         }
     }
 
+    /**
+     * Calls the .sense() method of all the attached sensors and stores the received values in an integer array.
+     *
+     * @return [LRFront, SRFrontLeft, SRFrontRight, SRLeft, SRRight]
+     */
     public int[] sense(Map explorationMap, Map realMap) {
         int[] result = new int[5];
         result[0] = LRFront.sense(explorationMap, realMap);

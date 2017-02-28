@@ -20,28 +20,24 @@ import static utils.MapDescriptor.loadMapFromDisk;
  */
 
 public class Simulator {
-    // JFrame for the application
-    private static JFrame _appFrame = null;
+    private static JFrame _appFrame = null;         // application JFrame
 
-    // JPanel for laying out different maps
-    private static JPanel _mapCards = null;
-
-    // JPanel for main menu buttons
-    private static JPanel _buttons = null;
+    private static JPanel _mapCards = null;         // JPanel for map views
+    private static JPanel _buttons = null;          // JPanel for buttons
 
     private static Robot bot;
 
-    private static Map realMap = null;
-    private static Map exploredMap = null;
-    private static Map timeExploredMap = null;
-    private static Map coverageExploredMap = null;
+    private static Map realMap = null;              // real map
+    private static Map exploredMap = null;          // exploration map
+    private static Map timeExploredMap = null;      // time-limited exploration map
+    private static Map coverageExploredMap = null;  // coverage-limited exploration map
 
-    // Time-limited Exploration
-    private static int timeLimit = 10;
+    private static int timeLimit = -1;              // time limit
+    private static long coverageLimit = -1;         // coverage limit
 
-    // Coverage-limited Exploration
-    private static long coverageLimit = 0;
-
+    /**
+     * Initialises the different maps and displays the application.
+     */
     public static void main(String[] args) {
         bot = new Robot(1, 1);
         realMap = new Map(bot);
@@ -58,8 +54,11 @@ public class Simulator {
         displayEverything();
     }
 
+    /**
+     * Initialises the different parts of the application.
+     */
     private static void displayEverything() {
-        // Main frame for displaying everything
+        // Initialise main frame for display
         _appFrame = new JFrame();
         _appFrame.setTitle("MDP Group 2 Simulator");
         _appFrame.setSize(new Dimension(690, 700));
@@ -75,7 +74,7 @@ public class Simulator {
         // Create the JPanel for the buttons
         _buttons = new JPanel();
 
-        // Add _mapCards & _buttons to content pane
+        // Add _mapCards & _buttons to the main frame's content pane
         Container contentPane = _appFrame.getContentPane();
         contentPane.add(_mapCards, BorderLayout.CENTER);
         contentPane.add(_buttons, BorderLayout.PAGE_END);
@@ -91,6 +90,10 @@ public class Simulator {
         _appFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
     }
 
+    /**
+     * Initialises the main map view by adding the different maps as cards in the CardLayout. Displays realMap
+     * by default.
+     */
     private static void initMainLayout() {
         _mapCards.add(realMap, "REAL_MAP");
         _mapCards.add(exploredMap, "EXPLORATION");
@@ -101,16 +104,26 @@ public class Simulator {
         cl.show(_mapCards, "REAL_MAP");
     }
 
+    /**
+     * Initialises the JPanel for the buttons.
+     */
     private static void initButtonsLayout() {
         _buttons.setLayout(new GridLayout());
         addButtons();
     }
 
+    /**
+     * Helper method to set particular properties for all the JButtons.
+     */
     private static void formatButton(JButton btn) {
         btn.setFont(new Font("Arial", Font.BOLD, 13));
         btn.setFocusPainted(false);
     }
 
+    /**
+     * Initialises and adds the five main buttons. Also creates the relevant classes (for multithreading) and JDialogs
+     * (for user input) for the different functions of the buttons.
+     */
     private static void addButtons() {
         // Load Map Button
         JButton btn_LoadMap = new JButton("Load Map");
