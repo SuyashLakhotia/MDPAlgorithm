@@ -40,11 +40,11 @@ public class Robot {
         posCol = col;
         robotDir = RobotConstants.START_DIR;
 
-        LRFront = new Sensor(RobotConstants.SENSOR_LONG_RANGE, this.posRow + 1, this.posCol, this.robotDir);
-        SRFrontLeft = new Sensor(RobotConstants.SENSOR_SHORT_RANGE, this.posRow + 1, this.posCol - 1, this.robotDir);
-        SRFrontRight = new Sensor(RobotConstants.SENSOR_SHORT_RANGE, this.posRow + 1, this.posCol + 1, this.robotDir);
-        SRLeft = new Sensor(RobotConstants.SENSOR_SHORT_RANGE, this.posRow, this.posCol - 1, findNewDirection(MOVEMENT.LEFT));
-        SRRight = new Sensor(RobotConstants.SENSOR_SHORT_RANGE, this.posRow, this.posCol + 1, findNewDirection(MOVEMENT.RIGHT));
+        LRFront = new Sensor(RobotConstants.SENSOR_LONG_RANGE_L, RobotConstants.SENSOR_LONG_RANGE_H, this.posRow + 1, this.posCol, this.robotDir);
+        SRFrontLeft = new Sensor(RobotConstants.SENSOR_SHORT_RANGE_L, RobotConstants.SENSOR_SHORT_RANGE_H, this.posRow + 1, this.posCol - 1, this.robotDir);
+        SRFrontRight = new Sensor(RobotConstants.SENSOR_SHORT_RANGE_L, RobotConstants.SENSOR_SHORT_RANGE_H, this.posRow + 1, this.posCol + 1, this.robotDir);
+        SRLeft = new Sensor(RobotConstants.SENSOR_SHORT_RANGE_L, RobotConstants.SENSOR_SHORT_RANGE_H, this.posRow, this.posCol - 1, findNewDirection(MOVEMENT.LEFT));
+        SRRight = new Sensor(RobotConstants.SENSOR_SHORT_RANGE_L, RobotConstants.SENSOR_SHORT_RANGE_H, this.posRow, this.posCol + 1, findNewDirection(MOVEMENT.RIGHT));
     }
 
     public void setRobotPos(int row, int col) {

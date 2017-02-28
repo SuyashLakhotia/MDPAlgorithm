@@ -10,13 +10,15 @@ import robot.RobotConstants.DIRECTION;
  */
 
 public class Sensor {
-    private int range;
+    private int lowerRange;
+    private int upperRange;
     private int sensorPosRow;
     private int sensorPosCol;
     private DIRECTION sensorDir;
 
-    public Sensor(int range, int row, int col, DIRECTION dir) {
-        this.range = range;
+    public Sensor(int lowerRange, int upperRange, int row, int col, DIRECTION dir) {
+        this.lowerRange = lowerRange;
+        this.upperRange = upperRange;
         this.sensorPosRow = row;
         this.sensorPosCol = col;
         this.sensorDir = dir;
@@ -29,62 +31,40 @@ public class Sensor {
     }
 
     /**
+     * Sets the appropriate obstacle cell in the map and returns the row or column value of the obstacle cell. Returns
+     * -1 if no obstacle is detected.
+     */
+    public int getSensorVal(Map exploredMap, Map realMap, int rowInc, int colInc) {
+        for (int i = this.lowerRange; i <= this.upperRange; i++) {
+            int row = this.sensorPosRow + (rowInc * i);
+            int col = this.sensorPosCol + (colInc * i);
+
+            if (!realMap.checkValidCoordinates(row, col)) {
+                return i;
+            }
+
+            exploredMap.getCell(row, col).setIsExplored(true);
+            if (realMap.getCell(row, col).getIsObstacle()) {
+                exploredMap.setObstacleCell(row, col, true);
+                return i;
+            }
+        }
+        return -1;
+    }
+
+    /**
      * Returns the number of cells to the nearest detected obstacle or -1 if no obstacle is detected.
      */
     public int sense(Map exploredMap, Map realMap) {
         switch (sensorDir) {
             case NORTH:
-                for (int i = 1; i <= this.range; i++) {
-                    if (this.sensorPosRow + i >= 20) { // touching north wall
-                        return i;
-                    }
-
-                    exploredMap.getCell(this.sensorPosRow + i, this.sensorPosCol).setIsExplored(true);
-                    if (realMap.getCell(this.sensorPosRow + i, this.sensorPosCol).getIsObstacle()) {
-                        exploredMap.setObstacleCell(this.sensorPosRow + i, this.sensorPosCol, true);
-                        return i;
-                    }
-                }
-                return -1;
+                return getSensorVal(exploredMap, realMap, 1, 0);
             case EAST:
-                for (int i = 1; i <= this.range; i++) {
-                    if (this.sensorPosCol + i >= 15) { // touching east wall
-                        return i;
-                    }
-
-                    exploredMap.getCell(this.sensorPosRow, this.sensorPosCol + i).setIsExplored(true);
-                    if (realMap.getCell(this.sensorPosRow, this.sensorPosCol + i).getIsObstacle()) {
-                        exploredMap.setObstacleCell(this.sensorPosRow, this.sensorPosCol + i, true);
-                        return i;
-                    }
-                }
-                return -1;
+                return getSensorVal(exploredMap, realMap, 0, 1);
             case SOUTH:
-                for (int i = 1; i <= this.range; i++) {
-                    if (this.sensorPosRow - i <= -1) { // touching south wall
-                        return i;
-                    }
-
-                    exploredMap.getCell(this.sensorPosRow - i, this.sensorPosCol).setIsExplored(true);
-                    if (realMap.getCell(this.sensorPosRow - i, this.sensorPosCol).getIsObstacle()) {
-                        exploredMap.setObstacleCell(this.sensorPosRow - i, this.sensorPosCol, true);
-                        return i;
-                    }
-                }
-                return -1;
+                return getSensorVal(exploredMap, realMap, -1, 0);
             case WEST:
-                for (int i = 1; i <= this.range; i++) {
-                    if (this.sensorPosCol - i <= -1) { // touching west wall
-                        return i;
-                    }
-
-                    exploredMap.getCell(this.sensorPosRow, this.sensorPosCol - i).setIsExplored(true);
-                    if (realMap.getCell(this.sensorPosRow, this.sensorPosCol - i).getIsObstacle()) {
-                        exploredMap.setObstacleCell(this.sensorPosRow, this.sensorPosCol - i, true);
-                        return i;
-                    }
-                }
-                return -1;
+                return getSensorVal(exploredMap, realMap, 0, -1);
         }
         return -1;
     }
