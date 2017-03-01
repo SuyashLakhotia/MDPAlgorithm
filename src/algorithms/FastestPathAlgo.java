@@ -46,6 +46,9 @@ public class FastestPathAlgo {
         initObject(map, bot);
     }
 
+    /**
+     * Initialise the FastestPathAlgo object.
+     */
     private void initObject(Map map, Robot bot) {
         this.bot = bot;
         this.map = map;
@@ -76,7 +79,7 @@ public class FastestPathAlgo {
     }
 
     /**
-     * Returns if the cell can be visited.
+     * Returns true if the cell can be visited.
      */
     private boolean canBeVisited(Cell c) {
         return c.getIsExplored() && map.getAllNeighboursExplored(c.getRow(), c.getCol()) && !c.getIsObstacle() && !c.getIsVirtualWall();
@@ -154,7 +157,7 @@ public class FastestPathAlgo {
      * Calculate the actual cost of moving from Cell a to Cell b (assuming both are neighbors).
      */
     private double costG(Cell a, Cell b, DIRECTION aDir) {
-        double moveCost = RobotConstants.MOVE_COST; // one movement to neighbour
+        double moveCost = RobotConstants.MOVE_COST; // one movement to neighbor
 
         double turnCost;
         DIRECTION targetDir = getTargetDir(a.getRow(), a.getCol(), aDir, b);

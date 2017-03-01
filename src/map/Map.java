@@ -80,7 +80,7 @@ public class Map extends JPanel {
     }
 
     /**
-     * Returns true if all neighbours of the cell are explored.
+     * Returns true if all neighbors of the cell are explored.
      */
     public boolean getAllNeighboursExplored(int row, int col) {
         int topRow = row + 1;
