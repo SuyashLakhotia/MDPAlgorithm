@@ -4,6 +4,7 @@ import algorithms.ExplorationAlgo;
 import algorithms.FastestPathAlgo;
 import map.Map;
 import robot.Robot;
+import robot.RobotConstants;
 
 import javax.swing.*;
 import java.awt.*;
@@ -42,7 +43,7 @@ public class Simulator {
      * Initialises the different maps and displays the application.
      */
     public static void main(String[] args) {
-        bot = new Robot(1, 1);
+        bot = new Robot(RobotConstants.START_ROW, RobotConstants.START_COL);
         realMap = new Map(bot);
 
         exploredMap = new Map(bot);
@@ -162,7 +163,7 @@ public class Simulator {
         // Exploration Class for Multithreading
         class Exploration extends SwingWorker<Integer, String> {
             protected Integer doInBackground() throws Exception {
-                bot.setRobotPos(1, 1);
+                bot.setRobotPos(RobotConstants.START_ROW, RobotConstants.START_COL);
                 exploredMap.repaint();
 
                 ExplorationAlgo exploration = new ExplorationAlgo(exploredMap, realMap, bot);
@@ -190,11 +191,11 @@ public class Simulator {
         // FastestPath Class for Multithreading
         class FastestPath extends SwingWorker<Integer, String> {
             protected Integer doInBackground() throws Exception {
-                bot.setRobotPos(1, 1);
+                bot.setRobotPos(RobotConstants.START_ROW, RobotConstants.START_COL);
                 realMap.repaint();
 
                 FastestPathAlgo fastestPath = new FastestPathAlgo(realMap, bot);
-                fastestPath.runFastestPath(18, 13);
+                fastestPath.runFastestPath(RobotConstants.GOAL_ROW, RobotConstants.GOAL_COL);
 
                 return 222;
             }
@@ -216,7 +217,7 @@ public class Simulator {
         // TimeExploration Class for Multithreading
         class TimeExploration extends SwingWorker<Integer, String> {
             protected Integer doInBackground() throws Exception {
-                bot.setRobotPos(1, 1);
+                bot.setRobotPos(RobotConstants.START_ROW, RobotConstants.START_COL);
                 timeExploredMap.repaint();
 
                 ExplorationAlgo timeExpo = new ExplorationAlgo(timeExploredMap, realMap, bot);
@@ -259,7 +260,7 @@ public class Simulator {
         // CoverageExploration Class for Multithreading
         class CoverageExploration extends SwingWorker<Integer, String> {
             protected Integer doInBackground() throws Exception {
-                bot.setRobotPos(1, 1);
+                bot.setRobotPos(RobotConstants.START_ROW, RobotConstants.START_COL);
                 coverageExploredMap.repaint();
 
                 ExplorationAlgo coverageExpo = new ExplorationAlgo(coverageExploredMap, realMap, bot);
