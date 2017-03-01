@@ -34,7 +34,7 @@ public class ExplorationAlgo {
     }
 
     /**
-     * Method to run the exploration algorithm
+     * Main method that is called to start the exploration.
      */
     public void runExploration() {
         startTime = System.currentTimeMillis();
@@ -47,20 +47,25 @@ public class ExplorationAlgo {
         runExploration(RobotConstants.START_ROW, RobotConstants.START_COL);
     }
 
+    /**
+     * Overloaded method to start or restart the exploration from a specified cell.
+     */
     private void runExploration(int startRow, int startCol) {
-        // Start exploration from START and come back to START
-        looping(startRow, startCol);
+        // Start exploration from starting cell
+        explorationLoop(startRow, startCol);
 
-        // Keep exploring till all cells are explored
+        // If termination conditions are not met
         if (areaExplored != 300 && areaExplored <= coverageLimit && System.currentTimeMillis() <= endTime) {
             System.out.println("Exploration is still not complete...");
 
-            // Get the closest explored (to unexplored) cell and closest unexplored cell
-            closestUnexploredCells(0, 0);
+            // Get the closest unexplored cell
+            closestUnexploredCell(0, 0);
         } else {
-            System.out.println("Exploration of all cells complete!");
+            System.out.println("Exploration complete!");
+            System.out.println(coverageLimit / 300.0 + "% Coverage");
+            System.out.println((System.currentTimeMillis() - startTime) / 1000 + " seconds");
 
-            // Return to START after exploration and point the bot NORTH
+            // Return to START after exploration and point the bot northwards
             FastestPathAlgo returnToStart = new FastestPathAlgo(exMap, bot);
             returnToStart.runFastestPath(RobotConstants.START_ROW, RobotConstants.START_COL);
             turnBotDirection(DIRECTION.NORTH);
@@ -68,9 +73,13 @@ public class ExplorationAlgo {
     }
 
     /**
-     * Loops through robot movements until robot reaches (r, c).
+     * Loops through robot movements until one (or more) of the following conditions is met:
+     * 1. Robot is back at (r, c)
+     * 2. areaExplored > coverageLimit
+     * 3. timeTaken > timeLimit
+     * 4. numOfContinuousExplored > 10
      */
-    private void looping(int r, int c) {
+    private void explorationLoop(int r, int c) {
         MOVEMENT curMove = null;
         MOVEMENT previousMove;
         do {
@@ -94,11 +103,11 @@ public class ExplorationAlgo {
                 return;
             }
         }
-        while ((bot.getRobotPosRow() != r || bot.getRobotPosCol() != c) && areaExplored <= coverageLimit && System.currentTimeMillis() <= endTime && numOfContinuousExplored <= 10);
+        while (!(bot.getRobotPosRow() == r && bot.getRobotPosCol() == c) && areaExplored <= coverageLimit && System.currentTimeMillis() <= endTime && numOfContinuousExplored <= 10);
     }
 
     /**
-     * Returns the next move according to the left-sticking rule.
+     * Returns the next move according to the current direction, neighbouring cells and previous move.
      */
     private MOVEMENT getNextMove(MOVEMENT previousMove) {
         int botRow = bot.getRobotPosRow();
@@ -110,136 +119,140 @@ public class ExplorationAlgo {
         switch (bot.getRobotCurDir()) {
             case NORTH:
                 if (northFree() && eastFree() && westFree() && southFree()) {
-                    System.out.println("n00");
+                    System.out.println("N00");
                     return MOVEMENT.FORWARD;
                 }
 
                 if (northFree() && !westFree()) {
-                    System.out.println("n01");
+                    System.out.println("N01");
                     return MOVEMENT.FORWARD;
                 }
 
                 if (westFree()) {
                     if (previousMove != MOVEMENT.LEFT) {
-                        System.out.println("n02");
+                        System.out.println("N02");
                         return MOVEMENT.LEFT;
                     }
-                    System.out.println("n03");
+                    System.out.println("N03");
                     return MOVEMENT.FORWARD;
                 }
 
                 if (eastFree() && !northFree()) {
-                    System.out.println("n04");
-                    return MOVEMENT.RIGHT;
-                } else {
-                    System.out.println("north error");
-                    if (northFree()) {
-                        System.out.println("n05");
-                        return MOVEMENT.FORWARD;
-                    }
-                    System.out.println("n06");
+                    System.out.println("N04");
                     return MOVEMENT.RIGHT;
                 }
+
+                if (northFree()) {
+                    System.out.println("N05");
+                    return MOVEMENT.FORWARD;
+                }
+
+                System.out.println("N06");
+                return MOVEMENT.RIGHT;
+
 
             case EAST:
                 if (northFree() && eastFree() && westFree() && southFree()) {
-                    System.out.println("e00");
+                    System.out.println("E00");
                     return MOVEMENT.FORWARD;
                 }
 
                 if (eastFree() && !northFree()) {
-                    System.out.println("e01");
+                    System.out.println("E01");
                     return MOVEMENT.FORWARD;
 
                 }
 
                 if (northFree()) {
                     if (previousMove != MOVEMENT.LEFT) {
-                        System.out.println("e02");
+                        System.out.println("E02");
                         return MOVEMENT.LEFT;
                     }
-                    System.out.println("e03");
+                    System.out.println("E03");
                     return MOVEMENT.FORWARD;
                 }
 
                 if (southFree() && !eastFree()) {
-                    System.out.println("e04");
-                    return MOVEMENT.RIGHT;
-                } else {
-                    System.out.println("east error");
-                    if (eastFree()) {
-                        System.out.println("e05");
-                        return MOVEMENT.FORWARD;
-                    }
-                    System.out.println("e06");
+                    System.out.println("E04");
                     return MOVEMENT.RIGHT;
                 }
+
+                if (eastFree()) {
+                    System.out.println("E05");
+                    return MOVEMENT.FORWARD;
+                }
+
+                System.out.println("E06");
+                return MOVEMENT.RIGHT;
+
 
             case SOUTH:
                 if (northFree() && eastFree() && westFree() && southFree()) {
-                    System.out.println("s00");
+                    System.out.println("S00");
                     return MOVEMENT.FORWARD;
                 }
 
                 if (southFree() && !eastFree()) {
-                    System.out.println("s01");
+                    System.out.println("S01");
                     return MOVEMENT.FORWARD;
                 }
 
                 if (eastFree()) {
                     if (previousMove != MOVEMENT.LEFT) {
-                        System.out.println("s02");
+                        System.out.println("S02");
                         return MOVEMENT.LEFT;
                     }
-                    System.out.println("s03");
+                    System.out.println("S03");
                     return MOVEMENT.FORWARD;
                 }
 
                 if (westFree() && !southFree()) {
-                    System.out.println("s04");
-                    return MOVEMENT.RIGHT;
-                } else {
-                    System.out.println("south error");
-                    if (southFree()) {
-                        System.out.println("s05");
-                        return MOVEMENT.FORWARD;
-                    }
-                    System.out.println("s06");
+                    System.out.println("S04");
                     return MOVEMENT.RIGHT;
                 }
+
+                if (southFree()) {
+                    System.out.println("S05");
+                    return MOVEMENT.FORWARD;
+                }
+
+                System.out.println("S06");
+                return MOVEMENT.RIGHT;
+
 
             case WEST:
                 if (northFree() && eastFree() && westFree() && southFree()) {
-                    System.out.println("w00");
+                    System.out.println("W00");
                     return MOVEMENT.FORWARD;
                 }
 
                 if (westFree() && !southFree()) {
-                    System.out.println("w01");
+                    System.out.println("W01");
                     return MOVEMENT.FORWARD;
                 }
 
                 if (southFree()) {
                     if (previousMove != MOVEMENT.LEFT) {
-                        System.out.println("w02");
+                        System.out.println("W02");
                         return MOVEMENT.LEFT;
                     }
-                    System.out.println("w03");
+                    System.out.println("W03");
                     return MOVEMENT.FORWARD;
                 }
 
                 if (northFree() && !westFree()) {
-                    System.out.println("w04");
-                    return MOVEMENT.RIGHT;
-                } else {
-                    System.out.println("west error");
-                    if (westFree()) {
-                        System.out.println("w05");
-                        return MOVEMENT.FORWARD;
-                    }
-                    System.out.println("w06");
+                    System.out.println("W04");
                     return MOVEMENT.RIGHT;
                 }
+
+                if (westFree()) {
+                    System.out.println("W05");
+                    return MOVEMENT.FORWARD;
+                }
+
+                System.out.println("W06");
+                return MOVEMENT.RIGHT;
+
 
             default:
                 return MOVEMENT.ERROR;
@@ -247,22 +260,20 @@ public class ExplorationAlgo {
     }
 
     /**
-     * Returns an array of two cells [Nearest Explored to ret[1], Nearest Unexplored].
+     * Finds the closest unexplored cell using the minimum values passed for row & column. Once found, finds the
+     * closest explored cell to the closest unexplored cell and instructs the robot to navigate to it (if possible).
      */
-    private void closestUnexploredCells(int minRow, int minCol) {
-        Cell arr[] = new Cell[2];
+    private void closestUnexploredCell(int minRow, int minCol) {
         for (int r = minRow; r < MapConstants.MAP_ROWS; r++) {
             for (int c = minCol; c < MapConstants.MAP_COLS; c++) {
-                Cell tmp = exMap.getCell(r, c);
-                if (!tmp.getIsExplored()) {
-                    Cell nearestExploredCell = checkForNearestExploredCell(tmp);
+                Cell unexploredCell = exMap.getCell(r, c);
+                if (!unexploredCell.getIsExplored()) {
+                    Cell nearestExploredCell = checkForNearestExploredCell(unexploredCell);
                     if (nearestExploredCell != null) {
                         System.out.println("Closest Unexplored Cell is (" + r + ", " + c + ")");
-                        arr[0] = nearestExploredCell;
-                        arr[1] = tmp;
-                        goToNearestExploredCell(arr);
+                        goToNearestExploredCell(unexploredCell, nearestExploredCell);
                     } else {
-                        System.out.println("No near explored cells for (" + r + ", " + c + ")");
+                        System.out.println("No explored cells near (" + r + ", " + c + ")");
                     }
                 }
             }
@@ -270,65 +281,65 @@ public class ExplorationAlgo {
     }
 
     /**
-     * Returns the nearest explored cell that is free to move into.
+     * Returns the nearest explored cell to the passed cell that is free to move into.
      */
     private Cell checkForNearestExploredCell(Cell c) {
         int c_row = c.getRow();
         int c_col = c.getCol();
-        Cell cellNearOb = null;
+        Cell nearestExploredCell = null;
 
         System.out.println("Checking for nearest explored cell for (" + c_row + ", " + c_col + ")");
         if (isExploredAndFree(c_row - 2, c_col)) {
-            //south of the obstacle facing east
-            cellNearOb = exMap.getCell(c_row - 2, c_col);
+            // South of unexplored cell
+            nearestExploredCell = exMap.getCell(c_row - 2, c_col);
         } else if (isExploredAndFree(c_row + 2, c_col)) {
-            //north of the obstacle facing west
-            cellNearOb = exMap.getCell(c_row + 2, c_col);
+            // North of unexplored cell
+            nearestExploredCell = exMap.getCell(c_row + 2, c_col);
         } else if (isExploredAndFree(c_row, c_col - 2)) {
-            //west of the obstacle facing south
-            cellNearOb = exMap.getCell(c_row, c_col - 2);
+            // West of unexplored cell
+            nearestExploredCell = exMap.getCell(c_row, c_col - 2);
         } else if (isExploredAndFree(c_row, c_col + 2)) {
-            //east of the obstacle facing north
-            cellNearOb = exMap.getCell(c_row, c_col + 2);
+            // East of unexplored cell
+            nearestExploredCell = exMap.getCell(c_row, c_col + 2);
         }
 
-        return cellNearOb;
+        return nearestExploredCell;
     }
 
     /**
-     * Moves the robot to the nearest explored cell, turns it with the unexplored cell to the left and calls the
-     * looping() method.
+     * Moves the robot to the nearest explored cell, turns it such that the unexplored cell is to the left and calls
+     * the runExploration() method from this cell.
      */
-    private void goToNearestExploredCell(Cell cells[]) {
-        int exploredRow = cells[0].getRow();
-        int exploredCol = cells[0].getCol();
-        int unexploredRow = cells[1].getRow();
-        int unexploredCol = cells[1].getCol();
+    private void goToNearestExploredCell(Cell unexploredCell, Cell nearestExplorecCell) {
+        int exploredRow = nearestExplorecCell.getRow();
+        int exploredCol = nearestExplorecCell.getCol();
+        int unexploredRow = unexploredCell.getRow();
+        int unexploredCol = unexploredCell.getCol();
 
         DIRECTION direction = null;
 
         if (exploredRow == unexploredRow - 2) {
+            // South of unexplored cell
             direction = DIRECTION.EAST;
         } else if (exploredRow == unexploredRow + 2) {
+            // North of unexplored cell
             direction = DIRECTION.WEST;
         } else if (exploredCol == unexploredCol - 2) {
+            // West of unexplored cell
             direction = DIRECTION.SOUTH;
         } else if (exploredCol == unexploredCol + 2) {
+            // East of unexplored cell
             direction = DIRECTION.NORTH;
         }
 
-        if (cells[0] == null && direction == null) {
-            System.out.println("both are null");
-        } else {
-            System.out.println("Going to (" + exploredRow + ", " + exploredCol + ") with direction " + direction);
-        }
+        System.out.println("Going to (" + exploredRow + ", " + exploredCol + ") with direction " + direction);
 
         // Go to the nearest explored cell
         FastestPathAlgo fpa = new FastestPathAlgo(exMap, bot, realMap);
         Object success = fpa.runFastestPath(exploredRow, exploredCol);
 
         if (success == null) {
-            closestUnexploredCells(unexploredRow, unexploredCol + 1);
+            closestUnexploredCell(unexploredRow, unexploredCol + 1);
         } else {
             areaExplored = calculateAreaExplored();
             turnBotDirection(direction);
@@ -363,7 +374,7 @@ public class ExplorationAlgo {
     }
 
     /**
-     * Returns true if the robot can move to the absolute north position.
+     * Returns true if the robot can move to the north cell.
      */
     private boolean northFree() {
         int botRow = bot.getRobotPosRow();
@@ -372,7 +383,7 @@ public class ExplorationAlgo {
     }
 
     /**
-     * Returns true if the robot can move to the absolute east position.
+     * Returns true if the robot can move to the east cell.
      */
     private boolean eastFree() {
         int botRow = bot.getRobotPosRow();
@@ -381,7 +392,7 @@ public class ExplorationAlgo {
     }
 
     /**
-     * Returns true if the robot can move to the absolute south position.
+     * Returns true if the robot can move to the south cell.
      */
     private boolean southFree() {
         int botRow = bot.getRobotPosRow();
@@ -390,7 +401,7 @@ public class ExplorationAlgo {
     }
 
     /**
-     * Returns true if the robot can move to the absolute west position.
+     * Returns true if the robot can move to the west cell.
      */
     private boolean westFree() {
         int botRow = bot.getRobotPosRow();
