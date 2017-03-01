@@ -263,6 +263,7 @@ public class ExplorationAlgo {
      * Finds the closest unexplored cell using the minimum values passed for row & column. Once found, finds the
      * closest explored cell to the closest unexplored cell and instructs the robot to navigate to it (if possible).
      */
+    // @TODO: Optimise this further? Get the actual nearest unexplored cell instead of the first.
     private void closestUnexploredCell(int minRow, int minCol) {
         for (int r = minRow; r < MapConstants.MAP_ROWS; r++) {
             for (int c = minCol; c < MapConstants.MAP_COLS; c++) {
@@ -339,8 +340,10 @@ public class ExplorationAlgo {
         Object outputStr = fpa.runFastestPath(exploredRow, exploredCol);
 
         if (outputStr == null) {
+            // @TODO: Which row & col should search start from?
             closestUnexploredCell(unexploredRow, unexploredCol + 1);
         } else if (outputStr.equals("T")) {
+            // @TODO: Which row & col should search start from?
             closestUnexploredCell(unexploredRow, unexploredCol + 1);
         } else {
             areaExplored = calculateAreaExplored();
