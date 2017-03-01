@@ -169,10 +169,10 @@ public class FastestPathAlgo {
     /**
      * Find the fastest path from the robot's current position to [goalRow, goalCol].
      */
-    public StringBuilder runFastestPath(int goalRow, int goalCol) {
+    public String runFastestPath(int goalRow, int goalCol) {
         System.out.println("Calculating fastest path from (" + current.getRow() + ", " + current.getCol() + ") to goal (" + goalRow + ", " + goalCol + ")...");
 
-        Stack<Cell> path = new Stack<>();
+        Stack<Cell> path;
         do {
             loopCount++;
 
@@ -268,7 +268,7 @@ public class FastestPathAlgo {
     /**
      * Executes the fastest path and returns a StringBuilder object with the path steps.
      */
-    private StringBuilder executePath(Stack<Cell> path, int goalRow, int goalCol) {
+    private String executePath(Stack<Cell> path, int goalRow, int goalCol) {
         StringBuilder outputString = new StringBuilder();
 
         Cell temp = path.pop();
@@ -302,7 +302,7 @@ public class FastestPathAlgo {
         }
 
         System.out.println("\nMovements: " + outputString.toString());
-        return outputString;
+        return outputString.toString();
     }
 
     /**
