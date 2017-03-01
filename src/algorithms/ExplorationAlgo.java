@@ -310,9 +310,9 @@ public class ExplorationAlgo {
      * Moves the robot to the nearest explored cell, turns it such that the unexplored cell is to the left and calls
      * the runExploration() method from this cell.
      */
-    private void goToNearestExploredCell(Cell unexploredCell, Cell nearestExplorecCell) {
-        int exploredRow = nearestExplorecCell.getRow();
-        int exploredCol = nearestExplorecCell.getCol();
+    private void goToNearestExploredCell(Cell unexploredCell, Cell nearestExploredCell) {
+        int exploredRow = nearestExploredCell.getRow();
+        int exploredCol = nearestExploredCell.getCol();
         int unexploredRow = unexploredCell.getRow();
         int unexploredCol = unexploredCell.getCol();
 
@@ -336,9 +336,11 @@ public class ExplorationAlgo {
 
         // Go to the nearest explored cell
         FastestPathAlgo fpa = new FastestPathAlgo(exMap, bot, realMap);
-        Object success = fpa.runFastestPath(exploredRow, exploredCol);
+        Object outputStr = fpa.runFastestPath(exploredRow, exploredCol);
 
-        if (success == null) {
+        if (outputStr == null) {
+            closestUnexploredCell(unexploredRow, unexploredCol + 1);
+        } else if (outputStr.equals("T")) {
             closestUnexploredCell(unexploredRow, unexploredCol + 1);
         } else {
             areaExplored = calculateAreaExplored();
