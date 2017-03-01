@@ -61,7 +61,7 @@ public class FastestPathAlgo {
         for (int i = 0; i < MapConstants.MAP_ROWS; i++) {
             for (int j = 0; j < MapConstants.MAP_COLS; j++) {
                 Cell cell = map.getCell(i, j);
-                if (cell.getIsObstacle() || cell.getIsVirtualWall() || !cell.getIsExplored() || !map.getAllNeighboursExplored(i, j)) {
+                if (!canBeVisited(cell)) {
                     gCosts[i][j] = RobotConstants.INFINITE_COST;
                 } else {
                     gCosts[i][j] = -1;
@@ -73,6 +73,13 @@ public class FastestPathAlgo {
         // Initialise starting point
         gCosts[bot.getRobotPosRow()][bot.getRobotPosCol()] = 0;
         this.loopCount = 0;
+    }
+
+    /**
+     * Returns if the cell can be visited.
+     */
+    private boolean canBeVisited(Cell c) {
+        return c.getIsExplored() && map.getAllNeighboursExplored(c.getRow(), c.getCol()) && !c.getIsObstacle() && !c.getIsVirtualWall();
     }
 
     /**
@@ -187,25 +194,25 @@ public class FastestPathAlgo {
             // Setup neighbors of current cell. [Top, Bottom, Left, Right].
             if (map.checkValidCoordinates(current.getRow() + 1, current.getCol())) {
                 neighbors[0] = map.getCell(current.getRow() + 1, current.getCol());
-                if (neighbors[0].getIsObstacle() || neighbors[0].getIsVirtualWall() || !neighbors[0].getIsExplored() || !map.getAllNeighboursExplored(current.getRow() + 1, current.getCol())) {
+                if (!canBeVisited(neighbors[0])) {
                     neighbors[0] = null;
                 }
             }
             if (map.checkValidCoordinates(current.getRow() - 1, current.getCol())) {
                 neighbors[1] = map.getCell(current.getRow() - 1, current.getCol());
-                if (neighbors[1].getIsObstacle() || neighbors[1].getIsVirtualWall() || !neighbors[1].getIsExplored() || !map.getAllNeighboursExplored(current.getRow() - 1, current.getCol())) {
+                if (!canBeVisited(neighbors[1])) {
                     neighbors[1] = null;
                 }
             }
             if (map.checkValidCoordinates(current.getRow(), current.getCol() - 1)) {
                 neighbors[2] = map.getCell(current.getRow(), current.getCol() - 1);
-                if (neighbors[2].getIsObstacle() || neighbors[2].getIsVirtualWall() || !neighbors[2].getIsExplored() || !map.getAllNeighboursExplored(current.getRow(), current.getCol() - 1)) {
+                if (!canBeVisited(neighbors[2])) {
                     neighbors[2] = null;
                 }
             }
             if (map.checkValidCoordinates(current.getRow(), current.getCol() + 1)) {
                 neighbors[3] = map.getCell(current.getRow(), current.getCol() + 1);
-                if (neighbors[3].getIsObstacle() || neighbors[3].getIsVirtualWall() || !neighbors[3].getIsExplored() || !map.getAllNeighboursExplored(current.getRow(), current.getCol() + 1)) {
+                if (!canBeVisited(neighbors[3])) {
                     neighbors[3] = null;
                 }
             }
