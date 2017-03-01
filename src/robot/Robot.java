@@ -28,11 +28,11 @@ public class Robot {
     private int posRow; // center cell
     private int posCol; // center cell
     private DIRECTION robotDir;
-    public Sensor LRFront;
-    public Sensor SRFrontLeft;
-    public Sensor SRFrontRight;
-    public Sensor SRLeft;
-    public Sensor SRRight;
+    private Sensor LRFront;
+    private Sensor SRFrontLeft;
+    private Sensor SRFrontRight;
+    private Sensor SRLeft;
+    private Sensor SRRight;
     private int speed = 100; // time taken (ms) for one movement
 
     public Robot(int row, int col) {
