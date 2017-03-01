@@ -224,6 +224,8 @@ public class Simulator {
                 ExplorationAlgo timeExplo = new ExplorationAlgo(timeExploredMap, realMap, bot, coverageLimit, timeLimit);
                 timeExplo.runExploration();
 
+                generateMapDescriptor(timeExploredMap);
+
                 return 333;
             }
         }
