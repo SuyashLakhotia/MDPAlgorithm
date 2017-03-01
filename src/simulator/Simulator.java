@@ -3,6 +3,7 @@ package simulator;
 import algorithms.ExplorationAlgo;
 import algorithms.FastestPathAlgo;
 import map.Map;
+import map.MapConstants;
 import robot.Robot;
 import robot.RobotConstants;
 
@@ -36,8 +37,8 @@ public class Simulator {
     private static Map timeExploredMap = null;      // time-limited exploration map
     private static Map coverageExploredMap = null;  // coverage-limited exploration map
 
-    private static int timeLimit = -1;              // time limit
-    private static long coverageLimit = -1;         // coverage limit
+    private static int timeLimit = 3600;            // time limit
+    private static int coverageLimit = 300;         // coverage limit
 
     /**
      * Initialises the different maps and displays the application.
@@ -166,7 +167,7 @@ public class Simulator {
                 bot.setRobotPos(RobotConstants.START_ROW, RobotConstants.START_COL);
                 exploredMap.repaint();
 
-                ExplorationAlgo exploration = new ExplorationAlgo(exploredMap, realMap, bot);
+                ExplorationAlgo exploration = new ExplorationAlgo(exploredMap, realMap, bot, coverageLimit, timeLimit);
                 exploration.runExploration();
 
                 generateMapDescriptor(exploredMap);
@@ -220,8 +221,8 @@ public class Simulator {
                 bot.setRobotPos(RobotConstants.START_ROW, RobotConstants.START_COL);
                 timeExploredMap.repaint();
 
-                ExplorationAlgo timeExpo = new ExplorationAlgo(timeExploredMap, realMap, bot);
-                timeExpo.runExploration(timeLimit);
+                ExplorationAlgo timeExplo = new ExplorationAlgo(timeExploredMap, realMap, bot, coverageLimit, timeLimit);
+                timeExplo.runExploration();
 
                 return 333;
             }
@@ -241,14 +242,16 @@ public class Simulator {
                 timeSaveButton.addMouseListener(new MouseAdapter() {
                     public void mousePressed(MouseEvent e) {
                         timeExploDialog.setVisible(false);
-                        timeLimit = (Integer.parseInt(timeTF.getText()));
+                        String time = timeTF.getText();
+                        String[] timeArr = time.split(":");
+                        timeLimit = (Integer.parseInt(timeArr[0]) * 60) + Integer.parseInt(timeArr[1]);
                         CardLayout cl = ((CardLayout) _mapCards.getLayout());
                         cl.show(_mapCards, "TIME_EXPLORATION");
                         new TimeExploration().execute();
                     }
                 });
 
-                timeExploDialog.add(new JLabel("Time Limit (in seconds): "));
+                timeExploDialog.add(new JLabel("Time Limit (in MM:SS): "));
                 timeExploDialog.add(timeTF);
                 timeExploDialog.add(timeSaveButton);
                 timeExploDialog.setVisible(true);
@@ -263,8 +266,8 @@ public class Simulator {
                 bot.setRobotPos(RobotConstants.START_ROW, RobotConstants.START_COL);
                 coverageExploredMap.repaint();
 
-                ExplorationAlgo coverageExpo = new ExplorationAlgo(coverageExploredMap, realMap, bot);
-                coverageExpo.runExploration(coverageLimit);
+                ExplorationAlgo coverageExplo = new ExplorationAlgo(coverageExploredMap, realMap, bot, coverageLimit, timeLimit);
+                coverageExplo.runExploration();
 
                 generateMapDescriptor(coverageExploredMap);
 
@@ -286,7 +289,7 @@ public class Simulator {
                 coverageSaveButton.addMouseListener(new MouseAdapter() {
                     public void mousePressed(MouseEvent e) {
                         coverageExploDialog.setVisible(false);
-                        coverageLimit = (Integer.parseInt(coverageTF.getText()));
+                        coverageLimit = (int) ((Integer.parseInt(coverageTF.getText())) * MapConstants.MAP_SIZE / 100.0);
                         new CoverageExploration().execute();
                         CardLayout cl = ((CardLayout) _mapCards.getLayout());
                         cl.show(_mapCards, "COVERAGE_EXPLORATION");

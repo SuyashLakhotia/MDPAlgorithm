@@ -80,6 +80,59 @@ public class Map extends JPanel {
     }
 
     /**
+     * Returns true if all neighbours of the cell are explored.
+     */
+    public boolean getAllNeighboursExplored(int row, int col) {
+        int topRow = row + 1;
+        if (checkValidCoordinates(topRow, col - 1)) {
+            if (!getCell(topRow, col - 1).getIsExplored()) {
+                return false;
+            }
+        }
+        if (checkValidCoordinates(topRow, col)) {
+            if (!getCell(topRow, col).getIsExplored()) {
+                return false;
+            }
+        }
+        if (checkValidCoordinates(topRow, col + 1)) {
+            if (!getCell(topRow, col + 1).getIsExplored()) {
+                return false;
+            }
+        }
+
+        int sameRow = row;
+        if (checkValidCoordinates(sameRow, col - 1)) {
+            if (!getCell(sameRow, col - 1).getIsExplored()) {
+                return false;
+            }
+        }
+        if (checkValidCoordinates(sameRow, col + 1)) {
+            if (!getCell(sameRow, col + 1).getIsExplored()) {
+                return false;
+            }
+        }
+
+        int bottomRow = row - 1;
+        if (checkValidCoordinates(bottomRow, col - 1)) {
+            if (!getCell(bottomRow, col - 1).getIsExplored()) {
+                return false;
+            }
+        }
+        if (checkValidCoordinates(bottomRow, col)) {
+            if (!getCell(bottomRow, col).getIsExplored()) {
+                return false;
+            }
+        }
+        if (checkValidCoordinates(bottomRow, col + 1)) {
+            if (!getCell(bottomRow, col + 1).getIsExplored()) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    /**
      * Sets all cells in the grid to an explored state.
      */
     public void setAllExplored() {

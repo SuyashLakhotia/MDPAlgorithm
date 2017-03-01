@@ -5,405 +5,426 @@ import map.Map;
 import map.MapConstants;
 import robot.Robot;
 import robot.RobotConstants;
-import robot.RobotConstants.MOVEMENT;
 import robot.RobotConstants.DIRECTION;
-
-import java.util.ArrayList;
+import robot.RobotConstants.MOVEMENT;
 
 /**
  * Exploration algorithm for the robot.
  *
+ * @author Priyanshu Singh
  * @author Suyash Lakhotia
  */
 
 public class ExplorationAlgo {
     private Map exMap, realMap;
     private Robot bot;
-    private ArrayList<Cell> path= new ArrayList<>();
     private int areaExplored;
-    private int[] sensorData;
+    private int coverageLimit;
+    private int timeLimit;
+    private long startTime;
+    private long endTime;
 
-    public ExplorationAlgo(Map exMap, Map realMap, Robot bot) {
+    public ExplorationAlgo(Map exMap, Map realMap, Robot bot, int coverageLimit, int timeLimit) {
         this.exMap = exMap;
         this.realMap = realMap;
         this.bot = bot;
+        this.coverageLimit = coverageLimit;
+        this.timeLimit = timeLimit;
     }
 
+    /**
+     * Method to run the exploration algorithm
+     */
     public void runExploration() {
+        startTime = System.currentTimeMillis();
+        endTime = startTime + (timeLimit * 1000);
+
         bot.setSensors();
-        sensorData = bot.sense(exMap, realMap);
+        bot.sense(exMap, realMap);
         areaExplored = calculateAreaExplored();
         System.out.println("Explored Area: " + areaExplored);
         exMap.repaint();
+
+        // Start exploration from START and come back to START
         looping(RobotConstants.START_ROW, RobotConstants.START_COL);
-        while(areaExplored!=300){
-            System.out.println("exploration is still not complete");
-            Cell closestUnexplored = closestUnexploredGrid();
-            System.out.println("Closest Unexplored Grid is: " + closestUnexplored.getRow() + ", " + closestUnexplored.getCol());
-            Cell nearbyObstacle = getNearbyObstacle(closestUnexplored);
-            if(nearbyObstacle!=null){
-                System.out.println("Nearby Obstacle: " + nearbyObstacle.getRow() + ", " + nearbyObstacle.getCol());
-                getExploredCellNearOb(nearbyObstacle);
-            }else{
-                getExploredCellNearOb(closestUnexplored);
-            }
 
+        // Keep exploring till all cells are explored
+        while (areaExplored != 300 && areaExplored <= coverageLimit && System.currentTimeMillis() <= endTime) {
+            System.out.println("Exploration is still not complete...");
+
+            // Get the closest explored (to unexplored) cell and closest unexplored cell
+            Cell closestUnexplored[] = closestRowUnexploredCells();
+            System.out.println("Closest Unexplored Cell is: " + closestUnexplored[1].getRow() + ", " + closestUnexplored[1].getCol());
+
+            goToNearestExploredCell(closestUnexplored);
+
+            looping(closestUnexplored[0].getRow(), closestUnexplored[0].getCol());
         }
-        System.out.println("Exploration of all grids complete");
+
+        System.out.println("Exploration of all cells complete");
+
+        // Return to START after exploration and point the bot NORTH
         FastestPathAlgo returnToStart = new FastestPathAlgo(exMap, bot);
-        returnToStart.runFastestPath(exMap,1, 1);
-
+        returnToStart.runFastestPath(RobotConstants.START_ROW, RobotConstants.START_COL);
         turnBotDirection(DIRECTION.NORTH);
-
     }
 
-    //moves the robot according to the left sticking rule starting from the cell(r,c) until the robot comes back
-    // to the cell(r,c)
-    private void looping(int r, int c){
-        MOVEMENT nextMove = null;
+    /**
+     * Loops through robot movements until robot reaches (r, c).
+     */
+    private void looping(int r, int c) {
+        MOVEMENT curMove = null;
         MOVEMENT previousMove;
-        do{
-            path.add(exMap.getCell(bot.getRobotPosRow(), bot.getRobotPosCol()));
-            previousMove = nextMove;
-            nextMove = getNextMove(previousMove);
-            System.out.println("move: "+nextMove);
-            bot.move(nextMove);
+        do {
+            previousMove = curMove;
+            curMove = getNextMove(previousMove);
+            System.out.println("Move: " + curMove.print(curMove));
+            bot.move(curMove);
             bot.setSensors();
-            sensorData = bot.sense(exMap, realMap);
+            bot.sense(exMap, realMap);
             areaExplored = calculateAreaExplored();
-            System.out.println("Area explored: "+areaExplored);
+            System.out.println("Area explored: " + areaExplored);
             exMap.repaint();
-            if(areaExplored == 300){
+            if (areaExplored == 300) {
                 return;
             }
-        }while(bot.getRobotPosRow()!=r || bot.getRobotPosCol()!=c);
+        }
+        while ((bot.getRobotPosRow() != r || bot.getRobotPosCol() != c) && areaExplored <= coverageLimit && System.currentTimeMillis() <= endTime);
     }
 
-    public void runExploration(int timeLimit) {// timelimit is in seconds
-        long start = System.currentTimeMillis();
-        long end = start + timeLimit*1000; // 60 seconds * 1000 ms/sec
-        MOVEMENT nextMove = null;
-        MOVEMENT prevMov;
-        bot.setSensors();
-        sensorData = bot.sense(exMap, realMap);
-        areaExplored = calculateAreaExplored();
-        System.out.println("Explored area: " + areaExplored);
-        exMap.repaint();
-        do{
-            prevMov = nextMove;
-            nextMove = getNextMove(prevMov);
-            System.out.println("move: " + nextMove);
-            bot.move(nextMove);
-            bot.setSensors();
-            sensorData = bot.sense(exMap, realMap);
-            areaExplored = calculateAreaExplored();
-            System.out.println("Explored area: " + areaExplored);
-            exMap.repaint();
-        }while((bot.getRobotPosCol() != 1 || bot.getRobotPosRow() != 1) && (System.currentTimeMillis() < end));
-
-        if (areaExplored!=300){
-            System.out.println("Grid not explored entirely");
-        }
-
-        // go to the start position
-        FastestPathAlgo goToStart = new FastestPathAlgo(exMap,bot);
-        goToStart.runFastestPath(exMap,1,1);
-
-        //after back to the start zone
-        //turn to North (Ready for shortest path finding)
-        while(bot.getRobotCurDir() != DIRECTION.NORTH){
-            bot.move(MOVEMENT.RIGHT);
-        }
-    }
-
-    public void runExploration(long coverageLimit) {
-        MOVEMENT nextMove = null;
-        MOVEMENT prevMov;
-        bot.setSensors();
-        sensorData = bot.sense(exMap, realMap);
-        areaExplored = calculateAreaExplored();
-        System.out.println("Explored area: " + areaExplored);
-        exMap.repaint();
-        do{
-            prevMov = nextMove;
-            nextMove = getNextMove(prevMov);
-            System.out.println("move: " + nextMove);
-            bot.move(nextMove);
-            bot.setSensors();
-            sensorData = bot.sense(exMap, realMap);
-            areaExplored = calculateAreaExplored();
-            System.out.println("exploredArea: " + areaExplored);
-            exMap.repaint();
-        }while((bot.getRobotPosCol() != 1 || bot.getRobotPosRow() != 1) && (areaExplored < (coverageLimit * MapConstants.MAP_SIZE /100)));
-
-        if (areaExplored!=300){
-            System.out.println("there are still unexplored areas!!!!");
-        }
-
-        //go back to start zone
-        FastestPathAlgo goToStart = new FastestPathAlgo(exMap,bot);
-        goToStart.runFastestPath(exMap,1,1);
-
-        //after back to the start zone
-        //turn to North (Ready for shortest path finding)
-        while(bot.getRobotCurDir() != DIRECTION.NORTH){
-            bot.move(MOVEMENT.RIGHT);
-        }
-    }
-
-    private MOVEMENT getNextMove(MOVEMENT previousMove){
+    /**
+     * Returns the next move according to the left-sticking rule.
+     */
+    private MOVEMENT getNextMove(MOVEMENT previousMove) {
         int botRow = bot.getRobotPosRow();
         int botCol = bot.getRobotPosCol();
-        System.out.println("current robot position: " + botRow +", " + botCol);
-        System.out.println("current robot direction: " + bot.getRobotCurDir());
-        switch(bot.getRobotCurDir()){
+
+        System.out.println("Current robot position: (" + botRow + ", " + botCol + ")");
+        System.out.println("Current robot direction: " + bot.getRobotCurDir());
+
+        switch (bot.getRobotCurDir()) {
             case NORTH:
-                if(northFree() && !westFree()){
+                if (northFree() && eastFree() && westFree() && southFree()) {
+                    System.out.println("n00");
                     return MOVEMENT.FORWARD;
                 }
-                else if(westFree()){
-                    if(previousMove!=MOVEMENT.LEFT){
+
+                if (northFree() && !westFree()) {
+                    System.out.println("n01");
+                    return MOVEMENT.FORWARD;
+                }
+
+                if (westFree()) {
+                    if (previousMove != MOVEMENT.LEFT) {
+                        System.out.println("n02");
                         return MOVEMENT.LEFT;
                     }
+                    System.out.println("n03");
                     return MOVEMENT.FORWARD;
                 }
-                else if(eastFree() && !northFree()){
+
+                if (eastFree() && !northFree()) {
+                    System.out.println("n04");
                     return MOVEMENT.RIGHT;
-                }
-                else{
+                } else {
                     System.out.println("north error");
-                    if(northFree()){
+                    if (northFree()) {
+                        System.out.println("n05");
                         return MOVEMENT.FORWARD;
                     }
+                    System.out.println("n06");
                     return MOVEMENT.RIGHT;
                 }
 
             case EAST:
-                if(eastFree() && !northFree()){
+                if (northFree() && eastFree() && westFree() && southFree()) {
+                    System.out.println("e00");
                     return MOVEMENT.FORWARD;
                 }
-                else if(northFree()){
-                    if(previousMove!=MOVEMENT.LEFT){
+
+                if (eastFree() && !northFree()) {
+                    System.out.println("e01");
+                    return MOVEMENT.FORWARD;
+
+                }
+
+                if (northFree()) {
+                    if (previousMove != MOVEMENT.LEFT) {
+                        System.out.println("e02");
                         return MOVEMENT.LEFT;
                     }
+                    System.out.println("e03");
                     return MOVEMENT.FORWARD;
                 }
-                else if(southFree() && !eastFree()){
+
+                if (southFree() && !eastFree()) {
+                    System.out.println("e04");
                     return MOVEMENT.RIGHT;
-                }
-                else{
+                } else {
                     System.out.println("east error");
-                    if(eastFree()){
+                    if (eastFree()) {
+                        System.out.println("e05");
                         return MOVEMENT.FORWARD;
                     }
+                    System.out.println("e06");
                     return MOVEMENT.RIGHT;
                 }
 
             case SOUTH:
-                if(southFree() && !eastFree()){
+                if (northFree() && eastFree() && westFree() && southFree()) {
+                    System.out.println("s00");
                     return MOVEMENT.FORWARD;
                 }
-                else if(eastFree()){
-                    if(previousMove!=MOVEMENT.LEFT){
+
+                if (southFree() && !eastFree()) {
+                    System.out.println("s01");
+                    return MOVEMENT.FORWARD;
+                }
+
+                if (eastFree()) {
+                    if (previousMove != MOVEMENT.LEFT) {
+                        System.out.println("s02");
                         return MOVEMENT.LEFT;
                     }
+                    System.out.println("s03");
                     return MOVEMENT.FORWARD;
                 }
-                else if(westFree() && !southFree()){
+
+                if (westFree() && !southFree()) {
+                    System.out.println("s04");
                     return MOVEMENT.RIGHT;
-                }
-                else{
+                } else {
                     System.out.println("south error");
-                    if(southFree()){
+                    if (southFree()) {
+                        System.out.println("s05");
                         return MOVEMENT.FORWARD;
                     }
+                    System.out.println("s06");
                     return MOVEMENT.RIGHT;
                 }
 
             case WEST:
-                if(westFree() && !southFree()){
+                if (northFree() && eastFree() && westFree() && southFree()) {
+                    System.out.println("w00");
                     return MOVEMENT.FORWARD;
                 }
-                else if(southFree()){
-                    if(previousMove!=MOVEMENT.LEFT){
+
+                if (westFree() && !southFree()) {
+                    System.out.println("w01");
+                    return MOVEMENT.FORWARD;
+                }
+
+                if (southFree()) {
+                    if (previousMove != MOVEMENT.LEFT) {
+                        System.out.println("w02");
                         return MOVEMENT.LEFT;
                     }
+                    System.out.println("w03");
                     return MOVEMENT.FORWARD;
                 }
-                else if(northFree() && !westFree()){
+
+                if (northFree() && !westFree()) {
+                    System.out.println("w04");
                     return MOVEMENT.RIGHT;
-                }
-                else{
+                } else {
                     System.out.println("west error");
-                    if(westFree()){
+                    if (westFree()) {
+                        System.out.println("w05");
                         return MOVEMENT.FORWARD;
                     }
+                    System.out.println("w06");
                     return MOVEMENT.RIGHT;
                 }
 
             default:
-                System.out.println("default error!");
-                return MOVEMENT.FORWARD;
+                return MOVEMENT.ERROR;
         }
     }
 
-
-    private Cell closestUnexploredGrid(){
-        Cell rCell = closestRowUnexploredGrid();
-        Cell cCell = closestColUnexploredGrid();
-        int rDis = Math.abs(rCell.getRow() - bot.getRobotPosRow()) + Math.abs(rCell.getCol() - bot.getRobotPosCol());
-        int cDis = Math.abs(cCell.getRow() - bot.getRobotPosRow()) + Math.abs(cCell.getCol() - bot.getRobotPosCol());
-        if (rDis < cDis){
-            return rCell;
-        }
-        return cCell;
-
-    }
-    private Cell closestRowUnexploredGrid(){
-        for (int r=0;r<MapConstants.MAP_ROWS;r++){
-            for (int c=0; c<MapConstants.MAP_COLS; c++){
-                if (!exMap.getCell(r,c).getIsExplored()){
-                    return exMap.getCell(r,c);
+    /**
+     * Returns an array of two cells [Nearest Explored to ret[1], Nearest Unexplored].
+     */
+    private Cell[] closestRowUnexploredCells() {
+        Cell arr[] = new Cell[2];
+        for (int r = 0; r < MapConstants.MAP_ROWS; r++) {
+            for (int c = 0; c < MapConstants.MAP_COLS; c++) {
+                Cell tmp = exMap.getCell(r, c);
+                if (!tmp.getIsExplored()) {
+                    Cell nearestExploredCell = checkForNearestExploredCell(tmp);
+                    if (nearestExploredCell != null) {
+                        System.out.println("Closest Unexplored Cell is (" + r + ", " + c + ")");
+                        arr[0] = nearestExploredCell;
+                        arr[1] = tmp;
+                        return arr;
+                    } else {
+                        System.out.println("No near explored cells for (" + r + ", " + c + ")");
+                    }
                 }
             }
         }
         return null;
     }
 
-    private Cell closestColUnexploredGrid(){
-        for (int c=0; c<MapConstants.MAP_COLS; c++){
-            for (int r=0;r<MapConstants.MAP_ROWS;r++){
-                if (!exMap.getCell(r,c).getIsExplored()){
-                    return exMap.getCell(r,c);
-                }
-            }
-        }
-        return null;
-    }
-
-    private Cell getNearbyObstacle(Cell blk){
-        int c = blk.getCol();
-        int r = blk.getRow();
-        if (exMap.getCell(r,c+1).getIsObstacle()){
-            return exMap.getCell(r,c+1);
-        }
-        else if (exMap.getCell(r,c-1).getIsObstacle()){
-            return exMap.getCell(r,c-1);
-        }
-        else if (exMap.getCell(r+1,c).getIsObstacle()){
-            return exMap.getCell(r+1,c);
-        }
-        else if (exMap.getCell(r-1,c).getIsObstacle()){
-            return exMap.getCell(r-1,c);
-        }
-        else{
-            return null;
-        }
-    }
-
-    private void turnBotDirection(DIRECTION dir){
-        System.out.println("robot direction: " + bot.getRobotCurDir());
-        while(bot.getRobotCurDir() != dir){
-            bot.move(MOVEMENT.RIGHT);
-            bot.setSensors();
-            sensorData = bot.sense(exMap, realMap);
-            exMap.repaint();
-            System.out.println("robot direction: " + bot.getRobotCurDir());
-        }
-    }
-
-    private Cell getExploredCellNearOb(Cell obstacle){
-        int ob_row = obstacle.getRow();
-        int ob_col = obstacle.getCol();
-
+    private Cell checkForNearestExploredCell(Cell c) {
+        int c_row = c.getRow();
+        int c_col = c.getCol();
         Cell cellNearOb = null;
-        DIRECTION direction = null;
-        if (isFreeToGo(ob_row-2,ob_col)){
+
+        System.out.println("Checking for nearest explored cell for (" + c_row + ", " + c_col + ")");
+        if (isExploredAndFree(c_row - 2, c_col)) {
             //south of the obstacle facing east
-            cellNearOb = exMap.getCell(ob_row-2,ob_col);
-            direction = DIRECTION.EAST;
-        }
-        else if (isFreeToGo(ob_row+2, ob_col)){
+            cellNearOb = exMap.getCell(c_row - 2, c_col);
+        } else if (isExploredAndFree(c_row + 2, c_col)) {
             //north of the obstacle facing west
-            cellNearOb = exMap.getCell(ob_row+2,ob_col);
-            direction = DIRECTION.WEST;
-        }
-        else if (isFreeToGo(ob_row,ob_col-2)){
+            cellNearOb = exMap.getCell(c_row + 2, c_col);
+        } else if (isExploredAndFree(c_row, c_col - 2)) {
             //west of the obstacle facing south
-            cellNearOb = exMap.getCell(ob_row,ob_col-2);
-            direction = DIRECTION.SOUTH;
-        }
-        else if (isFreeToGo(ob_row,ob_col+2)){
+            cellNearOb = exMap.getCell(c_row, c_col - 2);
+        } else if (isExploredAndFree(c_row, c_col + 2)) {
             //east of the obstacle facing north
-            cellNearOb = exMap.getCell(ob_row,ob_col+2);
-            direction = DIRECTION.NORTH;
+            cellNearOb = exMap.getCell(c_row, c_col + 2);
         }
-        // go to the mark point
-        FastestPathAlgo fpa = new FastestPathAlgo(exMap,bot,realMap);
-        fpa.runFastestPath(exMap,cellNearOb.getRow(),cellNearOb.getCol());
-        // bot.setSensors();
-        // sensorData = bot.sense(exMap, realMap);
-        areaExplored = calculateAreaExplored();
-        turnBotDirection(direction);
-        System.out.println("current position of the bot: " + bot.getRobotPosRow() +", " + bot.getRobotPosCol());
-        System.out.println("Nearby explored cell: " + cellNearOb.getRow() + ", " + cellNearOb.getCol());
-        looping(cellNearOb.getRow(),cellNearOb.getCol());
+
         return cellNearOb;
     }
 
-    // return true if b is not a virtual wall nor obstacle and alr explored
-    private boolean isFreeToGo(int r, int c){
-        if (r>=0 && r<MapConstants.MAP_ROWS && c>=0 && c<MapConstants.MAP_COLS){
-            Cell b = exMap.getCell(r,c);
+    /**
+     * Moves the robot to the nearest explored cell, turns it with the unexplored cell to the left and calls the
+     * looping() method.
+     */
+    private void goToNearestExploredCell(Cell cells[]) {
+        int exploredRow = cells[0].getRow();
+        int exploredCol = cells[0].getCol();
+        int unexploredRow = cells[1].getRow();
+        int unexploredCol = cells[1].getCol();
+
+        DIRECTION direction = null;
+
+        if (exploredRow == unexploredRow - 2) {
+            direction = DIRECTION.EAST;
+        } else if (exploredRow == unexploredRow + 2) {
+            direction = DIRECTION.WEST;
+        } else if (exploredCol == unexploredCol - 2) {
+            direction = DIRECTION.SOUTH;
+        } else if (exploredCol == unexploredCol + 2) {
+            direction = DIRECTION.NORTH;
+        }
+
+        if (cells[0] == null && direction == null) {
+            System.out.println("both are null");
+        } else {
+            System.out.println("Going to (" + exploredRow + ", " + exploredCol + ") with direction " + direction);
+        }
+
+        // Go to the nearest explored cell
+        FastestPathAlgo fpa = new FastestPathAlgo(exMap, bot, realMap);
+        fpa.runFastestPath(exploredRow, exploredCol);
+
+        areaExplored = calculateAreaExplored();
+        turnBotDirection(direction);
+    }
+
+    /**
+     * Turns the robot to the required direction.
+     */
+    private void turnBotDirection(DIRECTION targetDir) {
+        DIRECTION curDir = bot.getRobotCurDir();
+        int numOfTurn = Math.abs(curDir.ordinal() - targetDir.ordinal());
+
+        System.out.println("Robot direction: " + bot.getRobotCurDir());
+
+        if (numOfTurn == 1) {
+            if (curDir.getNext(curDir) == targetDir) {
+                bot.move(MOVEMENT.RIGHT);
+            } else {
+                bot.move(MOVEMENT.LEFT);
+            }
+
+            bot.setSensors();
+            bot.sense(exMap, realMap);
+            exMap.repaint();
+        } else if (numOfTurn == 2) {
+            bot.move(MOVEMENT.RIGHT);
+            bot.setSensors();
+            bot.sense(exMap, realMap);
+            exMap.repaint();
+            bot.move(MOVEMENT.RIGHT);
+            bot.setSensors();
+            bot.sense(exMap, realMap);
+            exMap.repaint();
+        }
+
+        System.out.println("Robot direction: " + bot.getRobotCurDir());
+    }
+
+    /**
+     * Returns true if the robot can move to the absolute north position.
+     */
+    private boolean northFree() {
+        int botRow = bot.getRobotPosRow();
+        int botCol = bot.getRobotPosCol();
+        return (isExploredNotObstacle(botRow + 1, botCol - 1) && isExploredAndFree(botRow + 1, botCol) && isExploredNotObstacle(botRow + 1, botCol + 1));
+    }
+
+    /**
+     * Returns true if the robot can move to the absolute east position.
+     */
+    private boolean eastFree() {
+        int botRow = bot.getRobotPosRow();
+        int botCol = bot.getRobotPosCol();
+        return (isExploredNotObstacle(botRow - 1, botCol + 1) && isExploredAndFree(botRow, botCol + 1) && isExploredNotObstacle(botRow + 1, botCol + 1));
+    }
+
+    /**
+     * Returns true if the robot can move to the absolute south position.
+     */
+    private boolean southFree() {
+        int botRow = bot.getRobotPosRow();
+        int botCol = bot.getRobotPosCol();
+        return (isExploredNotObstacle(botRow - 1, botCol - 1) && isExploredAndFree(botRow - 1, botCol) && isExploredNotObstacle(botRow - 1, botCol + 1));
+    }
+
+    /**
+     * Returns true if the robot can move to the absolute west position.
+     */
+    private boolean westFree() {
+        int botRow = bot.getRobotPosRow();
+        int botCol = bot.getRobotPosCol();
+        return (isExploredNotObstacle(botRow - 1, botCol - 1) && isExploredAndFree(botRow, botCol - 1) && isExploredNotObstacle(botRow + 1, botCol - 1));
+    }
+
+    /**
+     * Returns true for cells that are explored and not obstacles.
+     */
+    private boolean isExploredNotObstacle(int r, int c) {
+        boolean b = false;
+        if (exMap.checkValidCoordinates(r, c)) {
+            Cell tmp = exMap.getCell(r, c);
+            b = (tmp.getIsExplored() && (!tmp.getIsObstacle()));
+        }
+
+        return b;
+    }
+
+    /**
+     * Returns true for cells that are explored, not virtual walls and not obstacles.
+     */
+    private boolean isExploredAndFree(int r, int c) {
+        if (exMap.checkValidCoordinates(r, c)) {
+            Cell b = exMap.getCell(r, c);
             return (b.getIsExplored() && !b.getIsVirtualWall() && !b.getIsObstacle());
         }
         return false;
     }
 
-
-
-    //return true if its explored and its not a obstacle
-    private boolean checkFree(int r, int c){
-        boolean isFree = false;
-        if (r>=0 && r<MapConstants.MAP_ROWS && c>=0 && c<MapConstants.MAP_COLS){
-            isFree = (exMap.getCell(r,c).getIsExplored() && (!exMap.getCell(r,c).getIsObstacle())); //explored and not obstacle
-        }
-
-        return isFree;
-    }
-
-    //return true if west side is free
-    private boolean westFree(){
-        int botRow = bot.getRobotPosRow();
-        int botCol = bot.getRobotPosCol();
-        return(checkFree(botRow-1, botCol-2) && checkFree(botRow, botCol-2) && checkFree(botRow+1, botCol-2));
-    }
-    //return true if east side is free
-    private boolean eastFree(){
-        int botRow = bot.getRobotPosRow();
-        int botCol = bot.getRobotPosCol();
-        return (checkFree(botRow-1, botCol+2) && checkFree(botRow, botCol+2) && checkFree(botRow+1, botCol+2));
-    }
-    //return true if north side is free
-    private boolean northFree(){
-        int botRow = bot.getRobotPosRow();
-        int botCol = bot.getRobotPosCol();
-        return (checkFree(botRow+2, botCol - 1) && checkFree(botRow+2, botCol + 1) && checkFree(botRow+2, botCol));
-    }
-    //return true if south side is free
-    private boolean southFree(){
-        int botRow = bot.getRobotPosRow();
-        int botCol = bot.getRobotPosCol();
-        return (checkFree(botRow-2, botCol-1) && checkFree(botRow-2, botCol) && checkFree(botRow-2, botCol+1));
-    }
-
-
-
-    private int calculateAreaExplored(){
+    /**
+     * Returns the number of cells explored in the grid.
+     */
+    private int calculateAreaExplored() {
         int result = 0;
-        for(int r = 0;r< MapConstants.MAP_ROWS;r++){
-            for(int c= 0;c<MapConstants.MAP_COLS;c++){
-                if(exMap.getCell(r,c).getIsExplored()){
+        for (int r = 0; r < MapConstants.MAP_ROWS; r++) {
+            for (int c = 0; c < MapConstants.MAP_COLS; c++) {
+                if (exMap.getCell(r, c).getIsExplored()) {
                     result++;
                 }
             }
@@ -412,4 +433,89 @@ public class ExplorationAlgo {
     }
 
 
+//    private Cell closestUnexploredCell() {
+//        Cell rCell = closestRowUnexploredCells();
+//        Cell cCell = closestColUnexploredCell();
+//        int rDis = Math.abs(rCell.getRow() - bot.getRobotPosRow()) + Math.abs(rCell.getCol() - bot.getRobotPosCol());
+//        int cDis = Math.abs(cCell.getRow() - bot.getRobotPosRow()) + Math.abs(cCell.getCol() - bot.getRobotPosCol());
+//        if (rDis < cDis) {
+//            return rCell;
+//        }
+//        return cCell;
+//
+//    }
+
+//    private Cell closestRowUnexploredCell() {
+//        for (int r = 0; r < MapConstants.MAP_ROWS; r++) {
+//            for (int c = 0; c < MapConstants.MAP_COLS; c++) {
+//                if (!exMap.getCell(r, c).getIsExplored()) {
+//                    return exMap.getCell(r, c);
+//                }
+//            }
+//        }
+//        return null;
+//    }
+
+//    private Cell closestColUnexploredCell() {
+//        for (int c = 0; c < MapConstants.MAP_COLS; c++) {
+//            for (int r = 0; r < MapConstants.MAP_ROWS; r++) {
+//                if (!exMap.getCell(r, c).getIsExplored()) {
+//                    return exMap.getCell(r, c);
+//                }
+//            }
+//        }
+//        return null;
+//    }
+
+//    private Cell goToNearestExploredCell(Cell obstacle) {
+//        int ob_row = obstacle.getRow();
+//        int ob_col = obstacle.getCol();
+//
+//        Cell cellNearOb = null;
+//        DIRECTION direction = null;
+//        if (isExploredAndFree(ob_row - 2, ob_col)) {
+//            //south of the obstacle facing east
+//            cellNearOb = exMap.getCell(ob_row - 2, ob_col);
+//            direction = DIRECTION.EAST;
+//        } else if (isExploredAndFree(ob_row + 2, ob_col)) {
+//            //north of the obstacle facing west
+//            cellNearOb = exMap.getCell(ob_row + 2, ob_col);
+//            direction = DIRECTION.WEST;
+//        } else if (isExploredAndFree(ob_row, ob_col - 2)) {
+//            //west of the obstacle facing south
+//            cellNearOb = exMap.getCell(ob_row, ob_col - 2);
+//            direction = DIRECTION.SOUTH;
+//        } else if (isExploredAndFree(ob_row, ob_col + 2)) {
+//            //east of the obstacle facing north
+//            cellNearOb = exMap.getCell(ob_row, ob_col + 2);
+//            direction = DIRECTION.NORTH;
+//        }
+//        // go to the mark point
+//        FastestPathAlgo fpa = new FastestPathAlgo(exMap, bot, realMap);
+//        fpa.runFastestPath(exMap, cellNearOb.getRow(), cellNearOb.getCol());
+//        // bot.setSensors();
+//        // sensorData = bot.sense(exMap, realMap);
+//        areaExplored = calculateAreaExplored();
+//        turnBotDirection(direction);
+//        System.out.println("current position of the bot: " + bot.getRobotPosRow() + ", " + bot.getRobotPosCol());
+//        System.out.println("Nearby explored cell: " + cellNearOb.getRow() + ", " + cellNearOb.getCol());
+//        looping(cellNearOb.getRow(), cellNearOb.getCol());
+//        return cellNearOb;
+//    }
+
+//    private Cell getNearbyObstacle(Cell blk) {
+//        int c = blk.getCol();
+//        int r = blk.getRow();
+//        if (exMap.checkValidCoordinates(r, c + 1) && exMap.getCell(r, c + 1).getIsObstacle()) {
+//            return exMap.getCell(r, c + 1);
+//        } else if (exMap.checkValidCoordinates(r, c - 1) && exMap.getCell(r, c - 1).getIsObstacle()) {
+//            return exMap.getCell(r, c - 1);
+//        } else if (exMap.checkValidCoordinates(r + 1, c) && exMap.getCell(r + 1, c).getIsObstacle()) {
+//            return exMap.getCell(r + 1, c);
+//        } else if (exMap.checkValidCoordinates(r - 1, c) && exMap.getCell(r - 1, c).getIsObstacle()) {
+//            return exMap.getCell(r - 1, c);
+//        } else {
+//            return null;
+//        }
+//    }
 }
