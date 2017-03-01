@@ -34,7 +34,7 @@ public class FastestPathAlgo {
     private Robot bot;
     private Map map;
     private Map realMap;
-    private int testingCount;
+    private int loopCount;
 
     public FastestPathAlgo(Map map, Robot bot) {
         this.realMap = null;
@@ -72,7 +72,7 @@ public class FastestPathAlgo {
 
         // Initialise starting point
         gCosts[bot.getRobotPosRow()][bot.getRobotPosCol()] = 0;
-        this.testingCount = 0;
+        this.loopCount = 0;
     }
 
     /**
@@ -164,7 +164,7 @@ public class FastestPathAlgo {
 
         Stack<Cell> path = new Stack<>();
         do {
-            testingCount++;
+            loopCount++;
 
             // Get cell with minimum cost from toVisit and assign it to current.
             current = minimumCostCell(goalRow, goalCol);
@@ -180,7 +180,7 @@ public class FastestPathAlgo {
             if (visited.contains(map.getCell(goalRow, goalCol))) {
                 System.out.println("Goal visited. Path found!");
                 path = getPath(goalRow, goalCol);
-                // printFastestPath(path);
+                printFastestPath(path);
                 return executePath(path, goalRow, goalCol);
             }
 
@@ -270,19 +270,19 @@ public class FastestPathAlgo {
                 temp = path.pop();
             }
 
-            System.out.println("MOVEMENT from (" + bot.getRobotPosRow() + ", " + bot.getRobotPosCol() + ") to (" + temp.getRow() + ", " + temp.getCol() + ")");
             targetDir = getTargetDir(bot.getRobotPosRow(), bot.getRobotPosCol(), bot.getRobotCurDir(), temp);
 
             if (bot.getRobotCurDir() != targetDir) {
                 m = getTargetMove(bot.getRobotCurDir(), targetDir);
-                bot.move(m);
-                outputString.append(m.print(m));
             } else {
-                bot.move(MOVEMENT.FORWARD);
-                outputString.append("F");
+                m = MOVEMENT.FORWARD;
             }
 
-            // @TODO
+            System.out.println("Movement " + m.print(m) + " from (" + bot.getRobotPosRow() + ", " + bot.getRobotPosCol() + ") to (" + temp.getRow() + ", " + temp.getCol() + ")");
+            outputString.append(m.print(m));
+            bot.move(m);
+
+            // @TODO: Why is this here?
             if (realMap != null) {
                 bot.setSensors();
                 bot.sense(this.map, this.realMap);
@@ -291,7 +291,7 @@ public class FastestPathAlgo {
             this.map.repaint();
         }
 
-        System.out.println(outputString.toString());
+        System.out.println("\nMovements: " + outputString.toString());
         return outputString;
     }
 
@@ -355,15 +355,18 @@ public class FastestPathAlgo {
      * Prints the fastest path from the Stack object.
      */
     private void printFastestPath(Stack<Cell> path) {
+        System.out.println("\nLooped " + loopCount + " times.");
+        System.out.println("The number of steps is: " + (path.size() - 1) + "\n");
+
+        Stack<Cell> pathForPrint = (Stack<Cell>) path.clone();
         Cell temp;
-        System.out.println("Looped " + testingCount + " times.");
-        System.out.println("The number of steps is: " + (path.size() - 1));
         System.out.println("Path:");
-        System.out.println("============");
-        while (!path.isEmpty()) {
-            temp = path.pop();
-            System.out.print("(" + temp.getCol() + ", " + temp.getRow() + ")\n");
+        while (!pathForPrint.isEmpty()) {
+            temp = pathForPrint.pop();
+            if (!pathForPrint.isEmpty()) System.out.print("(" + temp.getRow() + ", " + temp.getCol() + ") --> ");
+            else System.out.print("(" + temp.getRow() + ", " + temp.getCol() + ")");
         }
+
         System.out.println("\n");
     }
 
