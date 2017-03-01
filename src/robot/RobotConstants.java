@@ -6,8 +6,6 @@ package robot;
  * @author Suyash Lakhotia
  */
 
-// @TODO: Long range sensor lower range.
-
 public class RobotConstants {
     public static final int GOAL_ROW = 18;                          // row no. of goal cell
     public static final int GOAL_COL = 13;                          // col no. of goal cell
