@@ -19,6 +19,7 @@ public class ExplorationAlgo {
     private Map exMap, realMap;
     private Robot bot;
     private int areaExplored;
+    private int numOfContinuousExplored;
     private int coverageLimit;
     private int timeLimit;
     private long startTime;
@@ -39,34 +40,31 @@ public class ExplorationAlgo {
         startTime = System.currentTimeMillis();
         endTime = startTime + (timeLimit * 1000);
 
-        bot.setSensors();
-        bot.sense(exMap, realMap);
+        senseAndRepaint();
         areaExplored = calculateAreaExplored();
         System.out.println("Explored Area: " + areaExplored);
-        exMap.repaint();
 
+        runExploration(RobotConstants.START_ROW, RobotConstants.START_COL);
+    }
+
+    private void runExploration(int startRow, int startCol) {
         // Start exploration from START and come back to START
-        looping(RobotConstants.START_ROW, RobotConstants.START_COL);
+        looping(startRow, startCol);
 
         // Keep exploring till all cells are explored
-        while (areaExplored != 300 && areaExplored <= coverageLimit && System.currentTimeMillis() <= endTime) {
+        if (areaExplored != 300 && areaExplored <= coverageLimit && System.currentTimeMillis() <= endTime) {
             System.out.println("Exploration is still not complete...");
 
             // Get the closest explored (to unexplored) cell and closest unexplored cell
-            Cell closestUnexplored[] = closestRowUnexploredCells();
-            System.out.println("Closest Unexplored Cell is: " + closestUnexplored[1].getRow() + ", " + closestUnexplored[1].getCol());
+            closestUnexploredCells(0, 0);
+        } else {
+            System.out.println("Exploration of all cells complete!");
 
-            goToNearestExploredCell(closestUnexplored);
-
-            looping(closestUnexplored[0].getRow(), closestUnexplored[0].getCol());
+            // Return to START after exploration and point the bot NORTH
+            FastestPathAlgo returnToStart = new FastestPathAlgo(exMap, bot);
+            returnToStart.runFastestPath(RobotConstants.START_ROW, RobotConstants.START_COL);
+            turnBotDirection(DIRECTION.NORTH);
         }
-
-        System.out.println("Exploration of all cells complete");
-
-        // Return to START after exploration and point the bot NORTH
-        FastestPathAlgo returnToStart = new FastestPathAlgo(exMap, bot);
-        returnToStart.runFastestPath(RobotConstants.START_ROW, RobotConstants.START_COL);
-        turnBotDirection(DIRECTION.NORTH);
     }
 
     /**
@@ -79,17 +77,24 @@ public class ExplorationAlgo {
             previousMove = curMove;
             curMove = getNextMove(previousMove);
             System.out.println("Move: " + curMove.print(curMove));
+
             bot.move(curMove);
-            bot.setSensors();
-            bot.sense(exMap, realMap);
+
+            if (exMap.getCell(bot.getRobotPosRow(), bot.getRobotPosCol()).getIsExplored()) {
+                numOfContinuousExplored++;
+            } else {
+                numOfContinuousExplored = 0;
+            }
+
+            senseAndRepaint();
             areaExplored = calculateAreaExplored();
             System.out.println("Area explored: " + areaExplored);
-            exMap.repaint();
+
             if (areaExplored == 300) {
                 return;
             }
         }
-        while ((bot.getRobotPosRow() != r || bot.getRobotPosCol() != c) && areaExplored <= coverageLimit && System.currentTimeMillis() <= endTime);
+        while ((bot.getRobotPosRow() != r || bot.getRobotPosCol() != c) && areaExplored <= coverageLimit && System.currentTimeMillis() <= endTime && numOfContinuousExplored <= 10);
     }
 
     /**
@@ -244,10 +249,10 @@ public class ExplorationAlgo {
     /**
      * Returns an array of two cells [Nearest Explored to ret[1], Nearest Unexplored].
      */
-    private Cell[] closestRowUnexploredCells() {
+    private void closestUnexploredCells(int minRow, int minCol) {
         Cell arr[] = new Cell[2];
-        for (int r = 0; r < MapConstants.MAP_ROWS; r++) {
-            for (int c = 0; c < MapConstants.MAP_COLS; c++) {
+        for (int r = minRow; r < MapConstants.MAP_ROWS; r++) {
+            for (int c = minCol; c < MapConstants.MAP_COLS; c++) {
                 Cell tmp = exMap.getCell(r, c);
                 if (!tmp.getIsExplored()) {
                     Cell nearestExploredCell = checkForNearestExploredCell(tmp);
@@ -255,16 +260,18 @@ public class ExplorationAlgo {
                         System.out.println("Closest Unexplored Cell is (" + r + ", " + c + ")");
                         arr[0] = nearestExploredCell;
                         arr[1] = tmp;
-                        return arr;
+                        goToNearestExploredCell(arr);
                     } else {
                         System.out.println("No near explored cells for (" + r + ", " + c + ")");
                     }
                 }
             }
         }
-        return null;
     }
 
+    /**
+     * Returns the nearest explored cell that is free to move into.
+     */
     private Cell checkForNearestExploredCell(Cell c) {
         int c_row = c.getRow();
         int c_col = c.getCol();
@@ -318,10 +325,15 @@ public class ExplorationAlgo {
 
         // Go to the nearest explored cell
         FastestPathAlgo fpa = new FastestPathAlgo(exMap, bot, realMap);
-        fpa.runFastestPath(exploredRow, exploredCol);
+        Object success = fpa.runFastestPath(exploredRow, exploredCol);
 
-        areaExplored = calculateAreaExplored();
-        turnBotDirection(direction);
+        if (success == null) {
+            closestUnexploredCells(unexploredRow, unexploredCol + 1);
+        } else {
+            areaExplored = calculateAreaExplored();
+            turnBotDirection(direction);
+            runExploration(exploredRow, exploredCol);
+        }
     }
 
     /**
@@ -339,19 +351,12 @@ public class ExplorationAlgo {
             } else {
                 bot.move(MOVEMENT.LEFT);
             }
-
-            bot.setSensors();
-            bot.sense(exMap, realMap);
-            exMap.repaint();
+            senseAndRepaint();
         } else if (numOfTurn == 2) {
             bot.move(MOVEMENT.RIGHT);
-            bot.setSensors();
-            bot.sense(exMap, realMap);
-            exMap.repaint();
+            senseAndRepaint();
             bot.move(MOVEMENT.RIGHT);
-            bot.setSensors();
-            bot.sense(exMap, realMap);
-            exMap.repaint();
+            senseAndRepaint();
         }
 
         System.out.println("Robot direction: " + bot.getRobotCurDir());
@@ -430,5 +435,14 @@ public class ExplorationAlgo {
             }
         }
         return result;
+    }
+
+    /**
+     * Sets the bot's sensors, processes the sensor data and repaints the map.
+     */
+    private void senseAndRepaint() {
+        bot.setSensors();
+        bot.sense(exMap, realMap);
+        exMap.repaint();
     }
 }
