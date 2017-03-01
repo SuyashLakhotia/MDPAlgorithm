@@ -82,7 +82,7 @@ public class FastestPathAlgo {
      * Returns true if the cell can be visited.
      */
     private boolean canBeVisited(Cell c) {
-        return c.getIsExplored() && map.getAllNeighboursExplored(c.getRow(), c.getCol()) && !c.getIsObstacle() && !c.getIsVirtualWall();
+        return c.getIsExplored() && !c.getIsObstacle() && !c.getIsVirtualWall();
     }
 
     /**
@@ -286,6 +286,10 @@ public class FastestPathAlgo {
                 m = getTargetMove(bot.getRobotCurDir(), targetDir);
             } else {
                 m = MOVEMENT.FORWARD;
+                if (!canMoveForward()) {
+                    System.out.println("Early termination of fastest path execution.");
+                    return "T";
+                }
             }
 
             System.out.println("Movement " + m.print(m) + " from (" + bot.getRobotPosRow() + ", " + bot.getRobotPosCol() + ") to (" + temp.getRow() + ", " + temp.getCol() + ")");
@@ -303,6 +307,39 @@ public class FastestPathAlgo {
 
         System.out.println("\nMovements: " + outputString.toString());
         return outputString.toString();
+    }
+
+    /**
+     * Returns true if the robot can move forward one cell with the current heading.
+     */
+    private boolean canMoveForward() {
+        int row = bot.getRobotPosRow();
+        int col = bot.getRobotPosCol();
+
+        switch (bot.getRobotCurDir()) {
+            case NORTH:
+                if (!map.isObstacleCell(row + 2, col - 1) && !map.isObstacleCell(row + 2, col) && !map.isObstacleCell(row + 2, col + 1)) {
+                    return true;
+                }
+                break;
+            case EAST:
+                if (!map.isObstacleCell(row + 1, col + 2) && !map.isObstacleCell(row, col + 2) && !map.isObstacleCell(row - 1, col + 2)) {
+                    return true;
+                }
+                break;
+            case SOUTH:
+                if (!map.isObstacleCell(row - 2, col - 1) && !map.isObstacleCell(row - 2, col) && !map.isObstacleCell(row - 2, col + 1)) {
+                    return true;
+                }
+                break;
+            case WEST:
+                if (!map.isObstacleCell(row + 1, col - 2) && !map.isObstacleCell(row, col - 2) && !map.isObstacleCell(row - 1, col - 2)) {
+                    return true;
+                }
+                break;
+        }
+
+        return false;
     }
 
     /**
