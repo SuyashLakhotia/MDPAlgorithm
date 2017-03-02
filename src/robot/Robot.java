@@ -1,6 +1,7 @@
 package robot;
 
 import map.Map;
+import map.MapConstants;
 import robot.RobotConstants.DIRECTION;
 import robot.RobotConstants.MOVEMENT;
 
@@ -34,6 +35,7 @@ public class Robot {
     private Sensor SRLeft;
     private Sensor SRRight;
     private int speed = 100; // time taken (ms) for one movement
+    private boolean touchedGoal;
 
     public Robot(int row, int col) {
         posRow = row;
@@ -66,6 +68,14 @@ public class Robot {
 
     public DIRECTION getRobotCurDir() {
         return robotDir;
+    }
+
+    private void updateTouchedGoal() {
+        if (this.getRobotPosRow() == MapConstants.GOAL_ROW && this.getRobotPosCol() == MapConstants.GOAL_COL) this.touchedGoal = true;
+    }
+
+    public boolean getTouchedGoal() {
+        return this.touchedGoal;
     }
 
     /**
@@ -124,6 +134,8 @@ public class Robot {
                 System.out.println("Error in Robot.move()!");
                 break;
         }
+
+        updateTouchedGoal();
     }
 
     /**

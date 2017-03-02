@@ -59,17 +59,41 @@ public class ExplorationAlgo {
             System.out.println("Exploration is still not complete...");
 
             // Get the closest unexplored cell
-            closestUnexploredCell(0, 0);
+            closestUnexploredCell(0, 0, true);
         } else {
             System.out.println("Exploration complete!");
             System.out.println(coverageLimit / 300.0 + "% Coverage");
             System.out.println((System.currentTimeMillis() - startTime) / 1000 + " seconds");
 
-            // Return to START after exploration and point the bot northwards
-            FastestPathAlgo returnToStart = new FastestPathAlgo(exMap, bot);
-            returnToStart.runFastestPath(RobotConstants.START_ROW, RobotConstants.START_COL);
-            turnBotDirection(DIRECTION.NORTH);
+            goHome();
         }
+    }
+
+    /**
+     * Returns the robot to START after exploration and points the bot northwards.
+     */
+    private void goHome() {
+        if (!bot.getTouchedGoal()) {
+            FastestPathAlgo goToGoal = new FastestPathAlgo(exMap, bot);
+            goToGoal.runFastestPath(RobotConstants.GOAL_ROW, RobotConstants.GOAL_COL);
+        }
+
+        FastestPathAlgo returnToStart = new FastestPathAlgo(exMap, bot);
+        returnToStart.runFastestPath(RobotConstants.START_ROW, RobotConstants.START_COL);
+        turnBotDirection(DIRECTION.NORTH);
+    }
+
+    /**
+     * Returns if the immediate surrounding cells of GOAL are explored.
+     */
+    private boolean isGoalClear() {
+        int goalRow = MapConstants.GOAL_ROW;
+        int goalCol = MapConstants.GOAL_COL;
+
+        boolean leftSide = exMap.getCell(goalRow + 1, goalCol - 2).getIsExplored() && exMap.getCell(goalRow, goalCol - 2).getIsExplored() && exMap.getCell(goalRow - 1, goalCol - 2).getIsExplored();
+        boolean bottomSide = exMap.getCell(goalRow - 2, goalCol - 1).getIsExplored() && exMap.getCell(goalRow - 2, goalCol).getIsExplored() && exMap.getCell(goalRow - 2, goalCol + 1).getIsExplored();
+
+        return leftSide && bottomSide;
     }
 
     /**
@@ -264,20 +288,32 @@ public class ExplorationAlgo {
      * closest explored cell to the closest unexplored cell and instructs the robot to navigate to it (if possible).
      */
     // @TODO: Optimise this further? Get the actual nearest unexplored cell instead of the first.
-    private void closestUnexploredCell(int minRow, int minCol) {
+    private void closestUnexploredCell(int minRow, int minCol, boolean firstCall) {
         for (int r = minRow; r < MapConstants.MAP_ROWS; r++) {
             for (int c = minCol; c < MapConstants.MAP_COLS; c++) {
-                Cell unexploredCell = exMap.getCell(r, c);
-                if (!unexploredCell.getIsExplored()) {
-                    Cell nearestExploredCell = checkForNearestExploredCell(unexploredCell);
+                Cell cell = exMap.getCell(r, c);
+                if (!cell.getIsExplored()) {
+                    Cell nearestExploredCell = checkForNearestExploredCell(cell);
                     if (nearestExploredCell != null) {
-                        System.out.println("Closest Unexplored Cell is (" + r + ", " + c + ")");
-                        goToNearestExploredCell(unexploredCell, nearestExploredCell);
+                        System.out.println("Closest Explored Cell is (" + nearestExploredCell.getRow() + ", " + nearestExploredCell.getCol() + ")");
+                        goToNearestExploredCell(cell, nearestExploredCell);
+                        if (isGoalClear()) {
+                            goHome();
+                            return;
+                        }
                     } else {
                         System.out.println("No explored cells near (" + r + ", " + c + ")");
                     }
                 }
             }
+        }
+
+        if (isGoalClear()) {
+            System.out.println("Goal clear.");
+            goHome();
+        } else if (firstCall) {
+            System.out.println("Goal not clear yet.");
+            closestUnexploredCell(0, 0, true);
         }
     }
 
@@ -341,10 +377,10 @@ public class ExplorationAlgo {
 
         if (outputStr == null) {
             // @TODO: Which row & col should search start from?
-            closestUnexploredCell(unexploredRow, unexploredCol + 1);
+            closestUnexploredCell(unexploredRow, unexploredCol + 1, false);
         } else if (outputStr.equals("T")) {
             // @TODO: Which row & col should search start from?
-            closestUnexploredCell(unexploredRow, unexploredCol + 1);
+            closestUnexploredCell(unexploredRow, unexploredCol + 1, false);
         } else {
             areaExplored = calculateAreaExplored();
             turnBotDirection(direction);
@@ -356,8 +392,10 @@ public class ExplorationAlgo {
      * Turns the robot to the required direction.
      */
     private void turnBotDirection(DIRECTION targetDir) {
+        System.out.println("turnBotDirection " + targetDir);
         DIRECTION curDir = bot.getRobotCurDir();
         int numOfTurn = Math.abs(curDir.ordinal() - targetDir.ordinal());
+        if (numOfTurn > 2) numOfTurn = numOfTurn % 2;
 
         System.out.println("Robot direction: " + bot.getRobotCurDir());
 
