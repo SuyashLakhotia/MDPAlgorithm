@@ -126,10 +126,6 @@ public class Robot {
             case LEFT:
                 robotDir = findNewDirection(m);
                 break;
-            case UTURN:
-                robotDir = findNewDirection(MOVEMENT.RIGHT);
-                robotDir = findNewDirection(MOVEMENT.RIGHT);
-                break;
             default:
                 System.out.println("Error in Robot.move()!");
                 break;
