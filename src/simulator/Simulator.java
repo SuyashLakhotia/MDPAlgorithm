@@ -34,8 +34,6 @@ public class Simulator {
 
     private static Map realMap = null;              // real map
     private static Map exploredMap = null;          // exploration map
-    private static Map timeExploredMap = null;      // time-limited exploration map
-    private static Map coverageExploredMap = null;  // coverage-limited exploration map
 
     private static int timeLimit = 3600;            // time limit
     private static int coverageLimit = 300;         // coverage limit
@@ -45,16 +43,12 @@ public class Simulator {
      */
     public static void main(String[] args) {
         bot = new Robot(RobotConstants.START_ROW, RobotConstants.START_COL);
+
         realMap = new Map(bot);
+        realMap.setAllUnexplored();
 
         exploredMap = new Map(bot);
         exploredMap.setAllUnexplored();
-
-        timeExploredMap = new Map(bot);
-        timeExploredMap.setAllUnexplored();
-
-        coverageExploredMap = new Map(bot);
-        coverageExploredMap.setAllUnexplored();
 
         displayEverything();
     }
@@ -102,8 +96,6 @@ public class Simulator {
     private static void initMainLayout() {
         _mapCards.add(realMap, "REAL_MAP");
         _mapCards.add(exploredMap, "EXPLORATION");
-        _mapCards.add(timeExploredMap, "TIME_EXPLORATION");
-        _mapCards.add(coverageExploredMap, "COVERAGE_EXPLORATION");
 
         CardLayout cl = ((CardLayout) _mapCards.getLayout());
         cl.show(_mapCards, "REAL_MAP");
@@ -219,12 +211,12 @@ public class Simulator {
         class TimeExploration extends SwingWorker<Integer, String> {
             protected Integer doInBackground() throws Exception {
                 bot.setRobotPos(RobotConstants.START_ROW, RobotConstants.START_COL);
-                timeExploredMap.repaint();
+                exploredMap.repaint();
 
-                ExplorationAlgo timeExplo = new ExplorationAlgo(timeExploredMap, realMap, bot, coverageLimit, timeLimit);
+                ExplorationAlgo timeExplo = new ExplorationAlgo(exploredMap, realMap, bot, coverageLimit, timeLimit);
                 timeExplo.runExploration();
 
-                generateMapDescriptor(timeExploredMap);
+                generateMapDescriptor(exploredMap);
 
                 return 333;
             }
@@ -248,7 +240,7 @@ public class Simulator {
                         String[] timeArr = time.split(":");
                         timeLimit = (Integer.parseInt(timeArr[0]) * 60) + Integer.parseInt(timeArr[1]);
                         CardLayout cl = ((CardLayout) _mapCards.getLayout());
-                        cl.show(_mapCards, "TIME_EXPLORATION");
+                        cl.show(_mapCards, "EXPLORATION");
                         new TimeExploration().execute();
                     }
                 });
@@ -266,12 +258,12 @@ public class Simulator {
         class CoverageExploration extends SwingWorker<Integer, String> {
             protected Integer doInBackground() throws Exception {
                 bot.setRobotPos(RobotConstants.START_ROW, RobotConstants.START_COL);
-                coverageExploredMap.repaint();
+                exploredMap.repaint();
 
-                ExplorationAlgo coverageExplo = new ExplorationAlgo(coverageExploredMap, realMap, bot, coverageLimit, timeLimit);
+                ExplorationAlgo coverageExplo = new ExplorationAlgo(exploredMap, realMap, bot, coverageLimit, timeLimit);
                 coverageExplo.runExploration();
 
-                generateMapDescriptor(coverageExploredMap);
+                generateMapDescriptor(exploredMap);
 
                 return 444;
             }
@@ -294,7 +286,7 @@ public class Simulator {
                         coverageLimit = (int) ((Integer.parseInt(coverageTF.getText())) * MapConstants.MAP_SIZE / 100.0);
                         new CoverageExploration().execute();
                         CardLayout cl = ((CardLayout) _mapCards.getLayout());
-                        cl.show(_mapCards, "COVERAGE_EXPLORATION");
+                        cl.show(_mapCards, "EXPLORATION");
                     }
                 });
 
