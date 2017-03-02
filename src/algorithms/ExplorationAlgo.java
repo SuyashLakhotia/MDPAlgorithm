@@ -62,7 +62,7 @@ public class ExplorationAlgo {
             closestUnexploredCell(0, 0, true);
         } else {
             System.out.println("Exploration complete!");
-            System.out.println(coverageLimit / 300.0 + "% Coverage");
+            System.out.println((coverageLimit / 300.0) * 100.0 + "% Coverage");
             System.out.println((System.currentTimeMillis() - startTime) / 1000 + " seconds");
 
             goHome();
@@ -73,7 +73,7 @@ public class ExplorationAlgo {
      * Returns the robot to START after exploration and points the bot northwards.
      */
     private void goHome() {
-        if (!bot.getTouchedGoal()) {
+        if (!bot.getTouchedGoal() && coverageLimit == 300 && timeLimit == 3600) {
             FastestPathAlgo goToGoal = new FastestPathAlgo(exMap, bot);
             goToGoal.runFastestPath(RobotConstants.GOAL_ROW, RobotConstants.GOAL_COL);
         }
@@ -291,6 +291,8 @@ public class ExplorationAlgo {
     private void closestUnexploredCell(int minRow, int minCol, boolean firstCall) {
         for (int r = minRow; r < MapConstants.MAP_ROWS; r++) {
             for (int c = minCol; c < MapConstants.MAP_COLS; c++) {
+                if (areaExplored > coverageLimit || System.currentTimeMillis() > endTime) return;
+
                 Cell cell = exMap.getCell(r, c);
                 if (!cell.getIsExplored()) {
                     Cell nearestExploredCell = checkForNearestExploredCell(cell);
