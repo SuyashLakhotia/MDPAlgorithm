@@ -143,7 +143,7 @@ public class Robot {
      */
     private void sendMovement(MOVEMENT m) {
         CommMgr comm = CommMgr.getCommMgr();
-        comm.sendMsg(m.print(m) + "", CommMgr.INSTRUCTIONS);
+        comm.sendMsg(MOVEMENT.print(m) + "", CommMgr.INSTRUCTIONS);
         comm.sendMsg("(" + this.getRobotPosRow() + "," + this.getRobotPosCol() + ")", CommMgr.BOT_POS);
     }
 

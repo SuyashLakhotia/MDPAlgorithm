@@ -81,7 +81,7 @@ public class ExplorationAlgo {
             previousMove = curMove;
             curMove = getNextMove(previousMove);
 
-            System.out.println("Move: " + curMove.print(curMove));
+            System.out.println("Move: " + MOVEMENT.print(curMove));
             moveBot(curMove);
 
             if (exMap.getCell(bot.getRobotPosRow(), bot.getRobotPosCol()).getIsExplored()) {

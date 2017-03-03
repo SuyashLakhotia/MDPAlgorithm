@@ -294,8 +294,8 @@ public class FastestPathAlgo {
                 }
             }
 
-            System.out.println("Movement " + m.print(m) + " from (" + bot.getRobotPosRow() + ", " + bot.getRobotPosCol() + ") to (" + temp.getRow() + ", " + temp.getCol() + ")");
-            outputString.append(m.print(m));
+            System.out.println("Movement " + MOVEMENT.print(m) + " from (" + bot.getRobotPosRow() + ", " + bot.getRobotPosCol() + ") to (" + temp.getRow() + ", " + temp.getCol() + ")");
+            outputString.append(MOVEMENT.print(m));
             bot.move(m);
             this.map.repaint();
 
