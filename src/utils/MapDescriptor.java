@@ -63,10 +63,10 @@ public class MapDescriptor {
         int dec = Integer.parseInt(hex + "", 16);
 
         char[] buf = new char[4];
-        buf[0] = (dec & 1) == 1 ? '1' : '0';
-        buf[1] = (dec & 2) == 2 ? '1' : '0';
-        buf[2] = (dec & 4) == 4 ? '1' : '0';
-        buf[3] = (dec & 8) == 8 ? '1' : '0';
+        buf[3] = (dec & 1) == 1 ? '1' : '0';
+        buf[2] = (dec & 2) == 2 ? '1' : '0';
+        buf[1] = (dec & 4) == 4 ? '1' : '0';
+        buf[0] = (dec & 8) == 8 ? '1' : '0';
 
         return new String(buf);
     }
