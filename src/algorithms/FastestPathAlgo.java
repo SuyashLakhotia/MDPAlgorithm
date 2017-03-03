@@ -35,6 +35,7 @@ public class FastestPathAlgo {
     private Map map;
     private Map realMap;
     private int loopCount;
+    private boolean explorationMode;
 
     public FastestPathAlgo(Map map, Robot bot) {
         this.realMap = null;
@@ -43,6 +44,7 @@ public class FastestPathAlgo {
 
     public FastestPathAlgo(Map map, Robot bot, Map realMap) {
         this.realMap = realMap;
+        this.explorationMode = true;
         initObject(map, bot);
     }
 
@@ -295,14 +297,14 @@ public class FastestPathAlgo {
             System.out.println("Movement " + m.print(m) + " from (" + bot.getRobotPosRow() + ", " + bot.getRobotPosCol() + ") to (" + temp.getRow() + ", " + temp.getCol() + ")");
             outputString.append(m.print(m));
             bot.move(m);
+            this.map.repaint();
 
             // During exploration, use sensor data to update map.
-            if (realMap != null) {
+            if (explorationMode) {
                 bot.setSensors();
                 bot.sense(this.map, this.realMap);
+                this.map.repaint();
             }
-
-            this.map.repaint();
         }
 
         System.out.println("\nMovements: " + outputString.toString());
