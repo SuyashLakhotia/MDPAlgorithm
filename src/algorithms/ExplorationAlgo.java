@@ -111,7 +111,7 @@ public class ExplorationAlgo {
             curMove = getNextMove(previousMove);
             System.out.println("Move: " + curMove.print(curMove));
 
-            bot.move(curMove);
+            moveBot(curMove);
 
             if (exMap.getCell(bot.getRobotPosRow(), bot.getRobotPosCol()).getIsExplored()) {
                 numOfContinuousExplored++;
@@ -119,7 +119,6 @@ public class ExplorationAlgo {
                 numOfContinuousExplored = 0;
             }
 
-            senseAndRepaint();
             areaExplored = calculateAreaExplored();
             System.out.println("Area explored: " + areaExplored);
 
@@ -403,16 +402,13 @@ public class ExplorationAlgo {
 
         if (numOfTurn == 1) {
             if (curDir.getNext(curDir) == targetDir) {
-                bot.move(MOVEMENT.RIGHT);
+                moveBot(MOVEMENT.RIGHT);
             } else {
-                bot.move(MOVEMENT.LEFT);
+                moveBot(MOVEMENT.LEFT);
             }
-            senseAndRepaint();
         } else if (numOfTurn == 2) {
-            bot.move(MOVEMENT.RIGHT);
-            senseAndRepaint();
-            bot.move(MOVEMENT.RIGHT);
-            senseAndRepaint();
+            moveBot(MOVEMENT.RIGHT);
+            moveBot(MOVEMENT.RIGHT);
         }
 
         System.out.println("Robot direction: " + bot.getRobotCurDir());
@@ -491,6 +487,15 @@ public class ExplorationAlgo {
             }
         }
         return result;
+    }
+
+    /**
+     * Moves the bot, repaints the map and calls senseAndRepaint().
+     */
+    private void moveBot(MOVEMENT m) {
+        bot.move(m);
+        exMap.repaint();
+        senseAndRepaint();
     }
 
     /**
