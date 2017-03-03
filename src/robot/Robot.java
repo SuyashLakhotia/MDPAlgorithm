@@ -34,7 +34,7 @@ public class Robot {
     private Sensor SRFrontRight;
     private Sensor SRLeft;
     private Sensor SRRight;
-    private int speed = 100; // time taken (ms) for one movement
+    private int speed = RobotConstants.SPEED; // time taken (ms) for one movement
     private boolean touchedGoal;
 
     public Robot(int row, int col) {
