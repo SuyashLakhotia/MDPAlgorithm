@@ -6,6 +6,7 @@ import map.Map;
 import map.MapConstants;
 import robot.Robot;
 import robot.RobotConstants;
+import utils.CommMgr;
 
 import javax.swing.*;
 import java.awt.*;
@@ -38,10 +39,15 @@ public class Simulator {
     private static int timeLimit = 3600;            // time limit
     private static int coverageLimit = 300;         // coverage limit
 
+    private static CommMgr comm = CommMgr.getCommMgr();
+    private static boolean realRun = true;
+
     /**
      * Initialises the different maps and displays the application.
      */
     public static void main(String[] args) {
+        if (realRun) comm.openConnection(1000);
+
         bot = new Robot(RobotConstants.START_ROW, RobotConstants.START_COL);
 
         realMap = new Map(bot);
@@ -156,10 +162,39 @@ public class Simulator {
         // Exploration Class for Multithreading
         class Exploration extends SwingWorker<Integer, String> {
             protected Integer doInBackground() throws Exception {
-                bot.setRobotPos(RobotConstants.START_ROW, RobotConstants.START_COL);
+                int row, col;
+
+                if (!realRun) {
+                    row = RobotConstants.START_ROW;
+                    col = RobotConstants.START_COL;
+                } else {
+                    while (true) {
+                        String msg = comm.recvMsg();
+                        String[] msgArr = msg.split("\n");
+                        if (msgArr[0].equals(CommMgr.START)) {
+                            String[] coords = msgArr[1].split(",");
+                            row = Integer.parseInt(coords[0]);
+                            col = Integer.parseInt(coords[1]);
+                            break;
+                        }
+                    }
+                }
+
+                bot.setRobotPos(row, col);
                 exploredMap.repaint();
 
-                ExplorationAlgo exploration = new ExplorationAlgo(exploredMap, realMap, bot, coverageLimit, timeLimit);
+
+                ExplorationAlgo exploration;
+                if (!realRun) {
+                    exploration = new ExplorationAlgo(exploredMap, realMap, bot, coverageLimit, timeLimit);
+                } else {
+                    exploration = new ExplorationAlgo(exploredMap, null, bot, coverageLimit, timeLimit);
+                }
+
+                if (realRun) {
+                    CommMgr.getCommMgr().sendMsg(null, CommMgr.BOT_START);
+                }
+
                 exploration.runExploration();
 
                 generateMapDescriptor(exploredMap);
@@ -187,7 +222,14 @@ public class Simulator {
                 bot.setRobotPos(RobotConstants.START_ROW, RobotConstants.START_COL);
                 realMap.repaint();
 
-                FastestPathAlgo fastestPath = new FastestPathAlgo(realMap, bot);
+                FastestPathAlgo fastestPath;
+
+                if (!realRun) {
+                    fastestPath = new FastestPathAlgo(realMap, bot);
+                } else {
+                    fastestPath = new FastestPathAlgo(exploredMap, bot);
+                }
+
                 fastestPath.runFastestPath(RobotConstants.GOAL_ROW, RobotConstants.GOAL_COL);
 
                 return 222;
@@ -200,7 +242,11 @@ public class Simulator {
         btn_FastestPath.addMouseListener(new MouseAdapter() {
             public void mousePressed(MouseEvent e) {
                 CardLayout cl = ((CardLayout) _mapCards.getLayout());
-                cl.show(_mapCards, "REAL_MAP");
+                if (!realRun) {
+                    cl.show(_mapCards, "REAL_MAP");
+                } else {
+                    cl.show(_mapCards, "EXPLORATION");
+                }
                 new FastestPath().execute();
             }
         });

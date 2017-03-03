@@ -4,6 +4,8 @@ import map.Map;
 import map.MapConstants;
 import robot.RobotConstants.DIRECTION;
 import robot.RobotConstants.MOVEMENT;
+import utils.CommMgr;
+import utils.MapDescriptor;
 
 import java.util.concurrent.TimeUnit;
 
@@ -132,7 +134,17 @@ public class Robot {
                 break;
         }
 
+        sendMovement(m);
         updateTouchedGoal();
+    }
+
+    /**
+     * Uses the CommMgr to send the next movement to the robot.
+     */
+    private void sendMovement(MOVEMENT m) {
+        CommMgr comm = CommMgr.getCommMgr();
+        comm.sendMsg(m.print(m) + "", CommMgr.INSTRUCTIONS);
+        comm.sendMsg("(" + this.getRobotPosRow() + "," + this.getRobotPosCol() + ")", CommMgr.BOT_POS);
     }
 
     /**
@@ -190,11 +202,36 @@ public class Robot {
      */
     public int[] sense(Map explorationMap, Map realMap) {
         int[] result = new int[5];
-        result[0] = SRFrontLeft.sense(explorationMap, realMap);
-        result[1] = SRFrontCenter.sense(explorationMap, realMap);
-        result[2] = SRFrontRight.sense(explorationMap, realMap);
-        result[3] = SRLeft.sense(explorationMap, realMap);
-        result[4] = SRRight.sense(explorationMap, realMap);
+
+        if (realMap != null) {
+            result[0] = SRFrontLeft.sense(explorationMap, realMap);
+            result[1] = SRFrontCenter.sense(explorationMap, realMap);
+            result[2] = SRFrontRight.sense(explorationMap, realMap);
+            result[3] = SRLeft.sense(explorationMap, realMap);
+            result[4] = SRRight.sense(explorationMap, realMap);
+        } else {
+            CommMgr comm = CommMgr.getCommMgr();
+            String msg = comm.recvMsg();
+            String[] msgArr = msg.split(";");
+
+            if (msgArr[0].equals(CommMgr.SENSOR_DATA)) {
+                result[0] = Integer.parseInt(msgArr[1].split("_")[1]);
+                result[1] = Integer.parseInt(msgArr[2].split("_")[1]);
+                result[2] = Integer.parseInt(msgArr[3].split("_")[1]);
+                result[3] = Integer.parseInt(msgArr[4].split("_")[1]);
+                result[4] = Integer.parseInt(msgArr[5].split("_")[1]);
+            }
+
+            SRFrontLeft.senseReal(explorationMap, result[0]);
+            SRFrontCenter.senseReal(explorationMap, result[1]);
+            SRFrontRight.senseReal(explorationMap, result[2]);
+            SRLeft.senseReal(explorationMap, result[3]);
+            SRRight.senseReal(explorationMap, result[4]);
+
+            String[] mapStrings = MapDescriptor.generateMapDescriptor(explorationMap);
+            comm.sendMsg(mapStrings[0] + "\n" + mapStrings[1], CommMgr.MAPSTRINGS);
+        }
+
         return result;
     }
 }
