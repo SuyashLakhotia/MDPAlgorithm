@@ -37,6 +37,8 @@ public class ExplorationAlgo {
      * Main method that is called to start the exploration.
      */
     public void runExploration() {
+        System.out.println("Starting exploration...");
+
         startTime = System.currentTimeMillis();
         endTime = startTime + (timeLimit * 1000);
 
@@ -48,10 +50,10 @@ public class ExplorationAlgo {
     }
 
     /**
-     * Overloaded method to start or restart the exploration from a specified cell.
+     * Overloaded method to start the exploration from a specified cell.
      */
     private void runExploration(int startRow, int startCol) {
-        // Start exploration from starting cell
+        // Start exploration from specified starting cell
         explorationLoop(startRow, startCol);
 
         // If termination conditions are not met
@@ -61,46 +63,15 @@ public class ExplorationAlgo {
             // Get the closest unexplored cell
             closestUnexploredCell(0, 0, true);
         } else {
-            System.out.println("Exploration complete!");
-            System.out.println((coverageLimit / 300.0) * 100.0 + "% Coverage");
-            System.out.println((System.currentTimeMillis() - startTime) / 1000 + " seconds");
-
             goHome();
         }
-    }
-
-    /**
-     * Returns the robot to START after exploration and points the bot northwards.
-     */
-    private void goHome() {
-        if (!bot.getTouchedGoal() && coverageLimit == 300 && timeLimit == 3600) {
-            FastestPathAlgo goToGoal = new FastestPathAlgo(exMap, bot);
-            goToGoal.runFastestPath(RobotConstants.GOAL_ROW, RobotConstants.GOAL_COL);
-        }
-
-        FastestPathAlgo returnToStart = new FastestPathAlgo(exMap, bot);
-        returnToStart.runFastestPath(RobotConstants.START_ROW, RobotConstants.START_COL);
-        turnBotDirection(DIRECTION.NORTH);
-    }
-
-    /**
-     * Returns if the immediate surrounding cells of GOAL are explored.
-     */
-    private boolean isGoalClear() {
-        int goalRow = MapConstants.GOAL_ROW;
-        int goalCol = MapConstants.GOAL_COL;
-
-        boolean leftSide = exMap.getCell(goalRow + 1, goalCol - 2).getIsExplored() && exMap.getCell(goalRow, goalCol - 2).getIsExplored() && exMap.getCell(goalRow - 1, goalCol - 2).getIsExplored();
-        boolean bottomSide = exMap.getCell(goalRow - 2, goalCol - 1).getIsExplored() && exMap.getCell(goalRow - 2, goalCol).getIsExplored() && exMap.getCell(goalRow - 2, goalCol + 1).getIsExplored();
-
-        return leftSide && bottomSide;
     }
 
     /**
      * Loops through robot movements until one (or more) of the following conditions is met:
      * 1. Robot is back at (r, c)
      * 2. areaExplored > coverageLimit
-     * 3. timeTaken > timeLimit
+     * 3. System.currentTimeMillis() > endTime
      * 4. numOfContinuousExplored > 10
      */
     private void explorationLoop(int r, int c) {
@@ -109,8 +80,8 @@ public class ExplorationAlgo {
         do {
             previousMove = curMove;
             curMove = getNextMove(previousMove);
-            System.out.println("Move: " + curMove.print(curMove));
 
+            System.out.println("Move: " + curMove.print(curMove));
             moveBot(curMove);
 
             if (exMap.getCell(bot.getRobotPosRow(), bot.getRobotPosCol()).getIsExplored()) {
@@ -130,7 +101,7 @@ public class ExplorationAlgo {
     }
 
     /**
-     * Returns the next move according to the current direction, neighbouring cells and previous move.
+     * Returns the next move according to the current direction, neighboring cells and previous move.
      */
     private MOVEMENT getNextMove(MOVEMENT previousMove) {
         int botRow = bot.getRobotPosRow();
@@ -283,138 +254,6 @@ public class ExplorationAlgo {
     }
 
     /**
-     * Finds the closest unexplored cell using the minimum values passed for row & column. Once found, finds the
-     * closest explored cell to the closest unexplored cell and instructs the robot to navigate to it (if possible).
-     */
-    // @TODO: Optimise this further? Get the actual nearest unexplored cell instead of the first.
-    private void closestUnexploredCell(int minRow, int minCol, boolean firstCall) {
-        for (int r = minRow; r < MapConstants.MAP_ROWS; r++) {
-            for (int c = minCol; c < MapConstants.MAP_COLS; c++) {
-                if (areaExplored > coverageLimit || System.currentTimeMillis() > endTime) return;
-
-                Cell cell = exMap.getCell(r, c);
-                if (!cell.getIsExplored()) {
-                    Cell nearestExploredCell = checkForNearestExploredCell(cell);
-                    if (nearestExploredCell != null) {
-                        System.out.println("Closest Explored Cell is (" + nearestExploredCell.getRow() + ", " + nearestExploredCell.getCol() + ")");
-                        goToNearestExploredCell(cell, nearestExploredCell);
-                        if (isGoalClear()) {
-                            goHome();
-                            return;
-                        }
-                    } else {
-                        System.out.println("No explored cells near (" + r + ", " + c + ")");
-                    }
-                }
-            }
-        }
-
-        if (isGoalClear()) {
-            System.out.println("Goal clear.");
-            goHome();
-        } else if (firstCall) {
-            System.out.println("Goal not clear yet.");
-            closestUnexploredCell(0, 0, true);
-        }
-    }
-
-    /**
-     * Returns the nearest explored cell to the passed cell that is free to move into.
-     */
-    private Cell checkForNearestExploredCell(Cell c) {
-        int c_row = c.getRow();
-        int c_col = c.getCol();
-        Cell nearestExploredCell = null;
-
-        System.out.println("Checking for nearest explored cell for (" + c_row + ", " + c_col + ")");
-        if (isExploredAndFree(c_row - 2, c_col)) {
-            // South of unexplored cell
-            nearestExploredCell = exMap.getCell(c_row - 2, c_col);
-        } else if (isExploredAndFree(c_row + 2, c_col)) {
-            // North of unexplored cell
-            nearestExploredCell = exMap.getCell(c_row + 2, c_col);
-        } else if (isExploredAndFree(c_row, c_col - 2)) {
-            // West of unexplored cell
-            nearestExploredCell = exMap.getCell(c_row, c_col - 2);
-        } else if (isExploredAndFree(c_row, c_col + 2)) {
-            // East of unexplored cell
-            nearestExploredCell = exMap.getCell(c_row, c_col + 2);
-        }
-
-        return nearestExploredCell;
-    }
-
-    /**
-     * Moves the robot to the nearest explored cell, turns it such that the unexplored cell is to the left and calls
-     * the runExploration() method from this cell.
-     */
-    private void goToNearestExploredCell(Cell unexploredCell, Cell nearestExploredCell) {
-        int exploredRow = nearestExploredCell.getRow();
-        int exploredCol = nearestExploredCell.getCol();
-        int unexploredRow = unexploredCell.getRow();
-        int unexploredCol = unexploredCell.getCol();
-
-        DIRECTION direction = null;
-
-        if (exploredRow == unexploredRow - 2) {
-            // South of unexplored cell
-            direction = DIRECTION.EAST;
-        } else if (exploredRow == unexploredRow + 2) {
-            // North of unexplored cell
-            direction = DIRECTION.WEST;
-        } else if (exploredCol == unexploredCol - 2) {
-            // West of unexplored cell
-            direction = DIRECTION.SOUTH;
-        } else if (exploredCol == unexploredCol + 2) {
-            // East of unexplored cell
-            direction = DIRECTION.NORTH;
-        }
-
-        System.out.println("Going to (" + exploredRow + ", " + exploredCol + ") with direction " + direction);
-
-        // Go to the nearest explored cell
-        FastestPathAlgo fpa = new FastestPathAlgo(exMap, bot, realMap);
-        Object outputStr = fpa.runFastestPath(exploredRow, exploredCol);
-
-        if (outputStr == null) {
-            // @TODO: Which row & col should search start from?
-            closestUnexploredCell(unexploredRow, unexploredCol + 1, false);
-        } else if (outputStr.equals("T")) {
-            // @TODO: Which row & col should search start from?
-            closestUnexploredCell(unexploredRow, unexploredCol + 1, false);
-        } else {
-            areaExplored = calculateAreaExplored();
-            turnBotDirection(direction);
-            runExploration(exploredRow, exploredCol);
-        }
-    }
-
-    /**
-     * Turns the robot to the required direction.
-     */
-    private void turnBotDirection(DIRECTION targetDir) {
-        System.out.println("turnBotDirection " + targetDir);
-        DIRECTION curDir = bot.getRobotCurDir();
-        int numOfTurn = Math.abs(curDir.ordinal() - targetDir.ordinal());
-        if (numOfTurn > 2) numOfTurn = numOfTurn % 2;
-
-        System.out.println("Robot direction: " + bot.getRobotCurDir());
-
-        if (numOfTurn == 1) {
-            if (curDir.getNext(curDir) == targetDir) {
-                moveBot(MOVEMENT.RIGHT);
-            } else {
-                moveBot(MOVEMENT.LEFT);
-            }
-        } else if (numOfTurn == 2) {
-            moveBot(MOVEMENT.RIGHT);
-            moveBot(MOVEMENT.RIGHT);
-        }
-
-        System.out.println("Robot direction: " + bot.getRobotCurDir());
-    }
-
-    /**
      * Returns true if the robot can move to the north cell.
      */
     private boolean northFree() {
@@ -448,6 +287,163 @@ public class ExplorationAlgo {
         int botRow = bot.getRobotPosRow();
         int botCol = bot.getRobotPosCol();
         return (isExploredNotObstacle(botRow - 1, botCol - 1) && isExploredAndFree(botRow, botCol - 1) && isExploredNotObstacle(botRow + 1, botCol - 1));
+    }
+
+    /**
+     * Finds the closest unexplored cell using the minimum values passed for row & column. Once found, finds a
+     * neighboring explored cell to this cell and instructs the robot to navigate to it (if possible).
+     */
+    // @TODO: Optimise this further? Get the actual nearest unexplored cell instead of the first.
+    private void closestUnexploredCell(int minRow, int minCol, boolean firstCall) {
+        for (int r = minRow; r < MapConstants.MAP_ROWS; r++) {
+            for (int c = minCol; c < MapConstants.MAP_COLS; c++) {
+                if (areaExplored > coverageLimit || System.currentTimeMillis() > endTime) return;
+
+                Cell cell = exMap.getCell(r, c);
+                if (!cell.getIsExplored()) {
+                    Cell neighboringExploredCell = checkForNeighboringExploredCell(cell);
+                    if (neighboringExploredCell != null) {
+                        System.out.println("Neighboring Explored Cell is (" + neighboringExploredCell.getRow() + ", " + neighboringExploredCell.getCol() + ")");
+                        goToNeighboringExploredCell(cell, neighboringExploredCell);
+                        if (isGoalClear()) {
+                            goHome();
+                            return;
+                        }
+                    } else {
+                        System.out.println("No explored cells near (" + r + ", " + c + ")");
+                    }
+                }
+            }
+        }
+
+        if (isGoalClear()) {
+            goHome();
+        } else if (firstCall) {
+            closestUnexploredCell(0, 0, true);
+        }
+    }
+
+    /**
+     * Returns the neighboring explored cell to the passed cell that is free to move into.
+     */
+    private Cell checkForNeighboringExploredCell(Cell c) {
+        int c_row = c.getRow();
+        int c_col = c.getCol();
+        Cell neighboringExploredCell = null;
+
+        System.out.println("Checking for neighboring explored cell for (" + c_row + ", " + c_col + ")");
+        if (isExploredAndFree(c_row - 2, c_col)) {
+            // South of unexplored cell
+            neighboringExploredCell = exMap.getCell(c_row - 2, c_col);
+        } else if (isExploredAndFree(c_row + 2, c_col)) {
+            // North of unexplored cell
+            neighboringExploredCell = exMap.getCell(c_row + 2, c_col);
+        } else if (isExploredAndFree(c_row, c_col - 2)) {
+            // West of unexplored cell
+            neighboringExploredCell = exMap.getCell(c_row, c_col - 2);
+        } else if (isExploredAndFree(c_row, c_col + 2)) {
+            // East of unexplored cell
+            neighboringExploredCell = exMap.getCell(c_row, c_col + 2);
+        }
+
+        return neighboringExploredCell;
+    }
+
+    /**
+     * Moves the robot to the neighboring explored cell, turns it such that the unexplored cell is to the left
+     * and calls the runExploration() method from this cell.
+     */
+    private void goToNeighboringExploredCell(Cell unexploredCell, Cell neighboringExploredCell) {
+        int exploredRow = neighboringExploredCell.getRow();
+        int exploredCol = neighboringExploredCell.getCol();
+        int unexploredRow = unexploredCell.getRow();
+        int unexploredCol = unexploredCell.getCol();
+
+        DIRECTION direction = null;
+
+        if (exploredRow == unexploredRow - 2) {
+            // South of unexplored cell
+            direction = DIRECTION.EAST;
+        } else if (exploredRow == unexploredRow + 2) {
+            // North of unexplored cell
+            direction = DIRECTION.WEST;
+        } else if (exploredCol == unexploredCol - 2) {
+            // West of unexplored cell
+            direction = DIRECTION.SOUTH;
+        } else if (exploredCol == unexploredCol + 2) {
+            // East of unexplored cell
+            direction = DIRECTION.NORTH;
+        }
+
+        System.out.println("Going to (" + exploredRow + ", " + exploredCol + ") with direction " + direction);
+
+        // Go to the neighboring explored cell
+        FastestPathAlgo fpa = new FastestPathAlgo(exMap, bot, realMap);
+        Object outputStr = fpa.runFastestPath(exploredRow, exploredCol);
+
+        if (outputStr == null) {
+            // @TODO: Which row & col should search start from?
+            closestUnexploredCell(unexploredRow, unexploredCol + 1, false);
+        } else if (outputStr.equals("T")) {
+            // @TODO: Which row & col should search start from?
+            closestUnexploredCell(unexploredRow, unexploredCol + 1, false);
+        } else {
+            areaExplored = calculateAreaExplored();
+            turnBotDirection(direction);
+            runExploration(exploredRow, exploredCol);
+        }
+    }
+
+    /**
+     * Turns the robot to the required direction.
+     */
+    private void turnBotDirection(DIRECTION targetDir) {
+        DIRECTION curDir = bot.getRobotCurDir();
+        int numOfTurn = Math.abs(curDir.ordinal() - targetDir.ordinal());
+        if (numOfTurn > 2) numOfTurn = numOfTurn % 2;
+
+        if (numOfTurn == 1) {
+            if (curDir.getNext(curDir) == targetDir) {
+                moveBot(MOVEMENT.RIGHT);
+            } else {
+                moveBot(MOVEMENT.LEFT);
+            }
+        } else if (numOfTurn == 2) {
+            moveBot(MOVEMENT.RIGHT);
+            moveBot(MOVEMENT.RIGHT);
+        }
+    }
+
+    /**
+     * Returns the robot to START after exploration and points the bot northwards.
+     */
+    private void goHome() {
+        if (!bot.getTouchedGoal() && coverageLimit == 300 && timeLimit == 3600) {
+            FastestPathAlgo goToGoal = new FastestPathAlgo(exMap, bot);
+            goToGoal.runFastestPath(RobotConstants.GOAL_ROW, RobotConstants.GOAL_COL);
+        }
+
+        FastestPathAlgo returnToStart = new FastestPathAlgo(exMap, bot);
+        returnToStart.runFastestPath(RobotConstants.START_ROW, RobotConstants.START_COL);
+        turnBotDirection(DIRECTION.NORTH);
+
+        System.out.println("Exploration complete!");
+        areaExplored = calculateAreaExplored();
+        System.out.printf("%.2f%% Coverage", (areaExplored / 300.0) * 100.0);
+        System.out.println((System.currentTimeMillis() - startTime) / 1000 + " seconds");
+    }
+
+    /**
+     * Returns if the immediate surrounding cells of GOAL are explored.
+     */
+    private boolean isGoalClear() {
+        int goalRow = MapConstants.GOAL_ROW;
+        int goalCol = MapConstants.GOAL_COL;
+
+        boolean leftSide = exMap.getCell(goalRow + 1, goalCol - 2).getIsExplored() && exMap.getCell(goalRow, goalCol - 2).getIsExplored() && exMap.getCell(goalRow - 1, goalCol - 2).getIsExplored();
+        boolean bottomSide = exMap.getCell(goalRow - 2, goalCol - 1).getIsExplored() && exMap.getCell(goalRow - 2, goalCol).getIsExplored() && exMap.getCell(goalRow - 2, goalCol + 1).getIsExplored();
+
+        return leftSide && bottomSide;
     }
 
     /**
