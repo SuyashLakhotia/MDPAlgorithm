@@ -33,8 +33,19 @@ public class RobotConstants {
             return values()[(curDirection.ordinal() + values().length - 1) % values().length];
         }
 
-        public static DIRECTION fromString(String direction) {
-            return valueOf(direction.toUpperCase());
+        public static char print(DIRECTION d) {
+            switch (d) {
+                case NORTH:
+                    return 'N';
+                case EAST:
+                    return 'E';
+                case SOUTH:
+                    return 'S';
+                case WEST:
+                    return 'W';
+                default:
+                    return 'X';
+            }
         }
     }
 

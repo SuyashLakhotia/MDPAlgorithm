@@ -144,7 +144,7 @@ public class Robot {
     private void sendMovement(MOVEMENT m) {
         CommMgr comm = CommMgr.getCommMgr();
         comm.sendMsg(MOVEMENT.print(m) + "", CommMgr.INSTRUCTIONS);
-        comm.sendMsg("(" + this.getRobotPosRow() + "," + this.getRobotPosCol() + ")", CommMgr.BOT_POS);
+        comm.sendMsg(this.getRobotPosRow() + "," + this.getRobotPosCol() + "," + DIRECTION.print(this.getRobotCurDir()), CommMgr.BOT_POS);
     }
 
     /**
@@ -229,7 +229,7 @@ public class Robot {
             SRRight.senseReal(explorationMap, result[4]);
 
             String[] mapStrings = MapDescriptor.generateMapDescriptor(explorationMap);
-            comm.sendMsg(mapStrings[0] + "\n" + mapStrings[1], CommMgr.MAPSTRINGS);
+            comm.sendMsg(mapStrings[0] + " " + mapStrings[1], CommMgr.MAP_STRINGS);
         }
 
         return result;

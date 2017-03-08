@@ -18,7 +18,7 @@ public class CommMgr {
     public static final String BOT_START = "BOT_START"; // PC --> Arduino
     public static final String SENSOR_DATA = "SDATA";   // Arduino --> PC
     public static final String INSTRUCTIONS = "INSTR";  // PC --> Arduino
-    public static final String MAPSTRINGS = "MAP";      // PC --> Android
+    public static final String MAP_STRINGS = "MAP";      // PC --> Android
     public static final String BOT_POS = "BOT_POS";     // PC --> Android
 
     private static CommMgr commMgr = null;
@@ -90,6 +90,8 @@ public class CommMgr {
             String outputMsg;
             if (msg == null) {
                 outputMsg = msgType + "\n";
+            } else if (msgType.equals(MAP_STRINGS) || msgType.equals(BOT_POS)) {
+                outputMsg = msgType + " " + msg;
             } else {
                 outputMsg = msgType + "\n" + msg + "\n";
             }
@@ -116,10 +118,7 @@ public class CommMgr {
             String input = reader.readLine();
 
             if (input != null && input.length() > 0) {
-                if (input.equals(START)) {
-                    sb.append(input);
-                    sb.append("\n");
-                    input = reader.readLine();
+                if (input.split(";")[0].equals(START)) {
                     sb.append(input);
                 } else if (input.split(";")[0].equals(SENSOR_DATA)) {
                     sb.append(input);

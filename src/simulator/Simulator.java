@@ -169,8 +169,9 @@ public class Simulator {
                     col = RobotConstants.START_COL;
                 } else {
                     while (true) {
+                        System.out.println("Waiting for PC_START...");
                         String msg = comm.recvMsg();
-                        String[] msgArr = msg.split("\n");
+                        String[] msgArr = msg.split(";");
                         if (msgArr[0].equals(CommMgr.START)) {
                             String[] coords = msgArr[1].split(",");
                             row = Integer.parseInt(coords[0]);
@@ -182,7 +183,6 @@ public class Simulator {
 
                 bot.setRobotPos(row, col);
                 exploredMap.repaint();
-
 
                 ExplorationAlgo exploration;
                 if (!realRun) {
