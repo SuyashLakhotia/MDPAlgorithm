@@ -47,15 +47,15 @@ public class Map extends JPanel {
     /**
      * Returns true if the row and column values are in the start zone.
      */
-    public boolean isStartZone(int row, int col) {
-        return grid[row][col].inStartZone();
+    public boolean inStartZone(int row, int col) {
+        return row >= 0 && row <= 2 && col >= 0 && col <= 2;
     }
 
     /**
      * Returns true if the row and column values are in the goal zone.
      */
-    public boolean isGoalZone(int row, int col) {
-        return grid[row][col].inGoalZone();
+    public boolean inGoalZone(int row, int col) {
+        return (row <= MapConstants.GOAL_ROW + 1 && row >= MapConstants.GOAL_ROW - 1 && col <= MapConstants.GOAL_COL + 1 && col >= MapConstants.GOAL_COL - 1);
     }
 
     /**
@@ -149,7 +149,7 @@ public class Map extends JPanel {
     public void setAllUnexplored() {
         for (int row = 0; row < grid.length; row++) {
             for (int col = 0; col < grid[0].length; col++) {
-                if (grid[row][col].inStartZone() || grid[row][col].inGoalZone()) {
+                if (inStartZone(row, col) || inGoalZone(row, col)) {
                     grid[row][col].setIsExplored(true);
                 } else {
                     grid[row][col].setIsExplored(false);
@@ -163,6 +163,9 @@ public class Map extends JPanel {
      * virtual walls.
      */
     public void setObstacleCell(int row, int col, boolean obstacle) {
+        if (obstacle && (inStartZone(row, col) || inGoalZone(row, col)))
+            return;
+
         grid[row][col].setIsObstacle(obstacle);
 
         if (row >= 1) {
@@ -217,9 +220,9 @@ public class Map extends JPanel {
             for (int mapCol = 0; mapCol < MapConstants.MAP_COLS; mapCol++) {
                 Color cellColor;
 
-                if (isStartZone(mapRow, mapCol))
+                if (inStartZone(mapRow, mapCol))
                     cellColor = GraphicsConstants.C_START;
-                else if (isGoalZone(mapRow, mapCol))
+                else if (inGoalZone(mapRow, mapCol))
                     cellColor = GraphicsConstants.C_GOAL;
                 else {
                     if (!grid[mapRow][mapCol].getIsExplored())
