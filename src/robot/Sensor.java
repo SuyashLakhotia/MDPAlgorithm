@@ -100,20 +100,24 @@ public class Sensor {
             int col = this.sensorPosCol + (colInc * sensorVal);
 
             if (exploredMap.checkValidCoordinates(row, col)) {
+                exploredMap.getCell(row, col).setIsExplored(true);
                 exploredMap.setObstacleCell(row, col, true);
             }
 
             upperLimit = sensorVal;
         } else {
-            upperLimit = upperRange;
+            upperLimit = upperRange + 1;
         }
 
-        for (int i = this.lowerRange; i <= upperLimit; i++) {
+        for (int i = this.lowerRange; i < upperLimit; i++) {
             int row = this.sensorPosRow + (rowInc * i);
             int col = this.sensorPosCol + (colInc * i);
 
             if (!exploredMap.checkValidCoordinates(row, col))
                 continue;
+
+            if (!exploredMap.getCell(row, col).getIsObstacle()) // sensor can't see further than an obstacle cell
+                break;
 
             exploredMap.getCell(row, col).setIsExplored(true);
         }
