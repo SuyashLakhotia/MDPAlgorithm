@@ -116,7 +116,7 @@ public class Sensor {
             if (!exploredMap.checkValidCoordinates(row, col))
                 continue;
 
-            if (!exploredMap.getCell(row, col).getIsObstacle()) // sensor can't see further than an obstacle cell
+            if (exploredMap.getCell(row, col).getIsObstacle()) // sensor can't see further than an obstacle cell
                 break;
 
             exploredMap.getCell(row, col).setIsExplored(true);
