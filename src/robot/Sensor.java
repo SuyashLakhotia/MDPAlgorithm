@@ -93,33 +93,17 @@ public class Sensor {
      * Sets the correct cells to explored and/or obstacle according to the actual sensor value.
      */
     public void processSensorVal(Map exploredMap, int rowInc, int colInc, int sensorVal) {
-        int upperLimit;
-
-        if (sensorVal != 0) {
-            int row = this.sensorPosRow + (rowInc * sensorVal);
-            int col = this.sensorPosCol + (colInc * sensorVal);
-
-            if (exploredMap.checkValidCoordinates(row, col)) {
-                exploredMap.getCell(row, col).setIsExplored(true);
-                exploredMap.setObstacleCell(row, col, true);
-            }
-
-            upperLimit = sensorVal;
-        } else {
-            upperLimit = upperRange + 1;
-        }
-
-        for (int i = this.lowerRange; i < upperLimit; i++) {
+        for (int i = this.lowerRange; i <= this.upperRange; i++) {
             int row = this.sensorPosRow + (rowInc * i);
             int col = this.sensorPosCol + (colInc * i);
 
-            if (!exploredMap.checkValidCoordinates(row, col))
-                continue;
-
-            if (exploredMap.getCell(row, col).getIsObstacle()) // sensor can't see further than an obstacle cell
-                break;
+            if (!exploredMap.checkValidCoordinates(row, col)) continue;
 
             exploredMap.getCell(row, col).setIsExplored(true);
+
+            if (sensorVal == i) exploredMap.setObstacleCell(row, col, true);
+
+            if (exploredMap.getCell(row, col).getIsObstacle()) break;
         }
     }
 }
