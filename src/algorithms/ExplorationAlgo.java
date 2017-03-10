@@ -429,7 +429,7 @@ public class ExplorationAlgo {
 
         System.out.println("Exploration complete!");
         areaExplored = calculateAreaExplored();
-        System.out.printf("%.2f%% Coverage", (areaExplored / 300.0) * 100.0);
+        System.out.printf("%.2f%% Coverage\n", (areaExplored / 300.0) * 100.0);
         System.out.println((System.currentTimeMillis() - startTime) / 1000 + " seconds");
     }
 
