@@ -24,13 +24,15 @@ public class ExplorationAlgo {
     private int timeLimit;
     private long startTime;
     private long endTime;
+    private boolean realRun;
 
-    public ExplorationAlgo(Map exMap, Map realMap, Robot bot, int coverageLimit, int timeLimit) {
+    public ExplorationAlgo(Map exMap, Map realMap, Robot bot, int coverageLimit, int timeLimit, boolean realRun) {
         this.exMap = exMap;
         this.realMap = realMap;
         this.bot = bot;
         this.coverageLimit = coverageLimit;
         this.timeLimit = timeLimit;
+        this.realRun = realRun;
     }
 
     /**

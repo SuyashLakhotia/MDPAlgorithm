@@ -45,10 +45,12 @@ public class Simulator {
     public static void main(String[] args) {
         if (realRun) comm.openConnection(1000);
 
-        bot = new Robot(RobotConstants.START_ROW, RobotConstants.START_COL);
+        bot = new Robot(RobotConstants.START_ROW, RobotConstants.START_COL, realRun);
 
-        realMap = new Map(bot);
-        realMap.setAllUnexplored();
+        if (!realRun) {
+            realMap = new Map(bot);
+            realMap.setAllUnexplored();
+        }
 
         exploredMap = new Map(bot);
         exploredMap.setAllUnexplored();
@@ -182,11 +184,7 @@ public class Simulator {
                 exploredMap.repaint();
 
                 ExplorationAlgo exploration;
-                if (!realRun) {
-                    exploration = new ExplorationAlgo(exploredMap, realMap, bot, coverageLimit, timeLimit);
-                } else {
-                    exploration = new ExplorationAlgo(exploredMap, null, bot, coverageLimit, timeLimit);
-                }
+                exploration = new ExplorationAlgo(exploredMap, realMap, bot, coverageLimit, timeLimit, realRun);
 
                 if (realRun) {
                     CommMgr.getCommMgr().sendMsg(null, CommMgr.BOT_START);
@@ -256,7 +254,7 @@ public class Simulator {
                 bot.setRobotPos(RobotConstants.START_ROW, RobotConstants.START_COL);
                 exploredMap.repaint();
 
-                ExplorationAlgo timeExplo = new ExplorationAlgo(exploredMap, realMap, bot, coverageLimit, timeLimit);
+                ExplorationAlgo timeExplo = new ExplorationAlgo(exploredMap, realMap, bot, coverageLimit, timeLimit, realRun);
                 timeExplo.runExploration();
 
                 generateMapDescriptor(exploredMap);
@@ -303,7 +301,7 @@ public class Simulator {
                 bot.setRobotPos(RobotConstants.START_ROW, RobotConstants.START_COL);
                 exploredMap.repaint();
 
-                ExplorationAlgo coverageExplo = new ExplorationAlgo(exploredMap, realMap, bot, coverageLimit, timeLimit);
+                ExplorationAlgo coverageExplo = new ExplorationAlgo(exploredMap, realMap, bot, coverageLimit, timeLimit, realRun);
                 coverageExplo.runExploration();
 
                 generateMapDescriptor(exploredMap);

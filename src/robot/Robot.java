@@ -38,11 +38,14 @@ public class Robot {
     private Sensor SRRight;
     private int speed = RobotConstants.SPEED; // time taken (ms) for one movement
     private boolean touchedGoal;
+    private boolean realBot;
 
-    public Robot(int row, int col) {
+    public Robot(int row, int col, boolean realBot) {
         posRow = row;
         posCol = col;
         robotDir = RobotConstants.START_DIR;
+
+        this.realBot = realBot;
 
         SRFrontLeft = new Sensor(RobotConstants.SENSOR_SHORT_RANGE_L, RobotConstants.SENSOR_SHORT_RANGE_H, this.posRow + 1, this.posCol - 1, this.robotDir);
         SRFrontCenter = new Sensor(RobotConstants.SENSOR_SHORT_RANGE_L, RobotConstants.SENSOR_SHORT_RANGE_H, this.posRow + 1, this.posCol, this.robotDir);
@@ -134,7 +137,8 @@ public class Robot {
                 break;
         }
 
-        sendMovement(m);
+        if (realBot) sendMovement(m);
+
         updateTouchedGoal();
     }
 
@@ -203,7 +207,7 @@ public class Robot {
     public int[] sense(Map explorationMap, Map realMap) {
         int[] result = new int[5];
 
-        if (realMap != null) {
+        if (!realBot) {
             result[0] = SRFrontLeft.sense(explorationMap, realMap);
             result[1] = SRFrontCenter.sense(explorationMap, realMap);
             result[2] = SRFrontRight.sense(explorationMap, realMap);
