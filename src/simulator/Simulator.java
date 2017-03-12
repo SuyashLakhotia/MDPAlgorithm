@@ -22,9 +22,6 @@ import static utils.MapDescriptor.loadMapFromDisk;
  * @author Suyash Lakhotia
  */
 
-// @TODO: Coverage & Time HUDs.
-// @TODO: Show fully explored map on the side?
-
 public class Simulator {
     private static JFrame _appFrame = null;         // application JFrame
 
