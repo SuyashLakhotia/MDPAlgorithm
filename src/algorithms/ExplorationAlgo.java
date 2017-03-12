@@ -421,11 +421,11 @@ public class ExplorationAlgo {
      */
     private void goHome() {
         if (!bot.getTouchedGoal() && coverageLimit == 300 && timeLimit == 3600) {
-            FastestPathAlgo goToGoal = new FastestPathAlgo(exMap, bot);
+            FastestPathAlgo goToGoal = new FastestPathAlgo(exMap, bot, realMap);
             goToGoal.runFastestPath(RobotConstants.GOAL_ROW, RobotConstants.GOAL_COL);
         }
 
-        FastestPathAlgo returnToStart = new FastestPathAlgo(exMap, bot);
+        FastestPathAlgo returnToStart = new FastestPathAlgo(exMap, bot, realMap);
         returnToStart.runFastestPath(RobotConstants.START_ROW, RobotConstants.START_COL);
         turnBotDirection(DIRECTION.NORTH);
 
