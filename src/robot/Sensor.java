@@ -10,8 +10,8 @@ import robot.RobotConstants.DIRECTION;
  */
 
 public class Sensor {
-    private int lowerRange;
-    private int upperRange;
+    private final int lowerRange;
+    private final int upperRange;
     private int sensorPosRow;
     private int sensorPosCol;
     private DIRECTION sensorDir;
@@ -51,7 +51,7 @@ public class Sensor {
      * Sets the appropriate obstacle cell in the map and returns the row or column value of the obstacle cell. Returns
      * -1 if no obstacle is detected.
      */
-    public int getSensorVal(Map exploredMap, Map realMap, int rowInc, int colInc) {
+    private int getSensorVal(Map exploredMap, Map realMap, int rowInc, int colInc) {
         for (int i = this.lowerRange; i <= this.upperRange; i++) {
             int row = this.sensorPosRow + (rowInc * i);
             int col = this.sensorPosCol + (colInc * i);
@@ -91,7 +91,7 @@ public class Sensor {
     /**
      * Sets the correct cells to explored and/or obstacle according to the actual sensor value.
      */
-    public void processSensorVal(Map exploredMap, int sensorVal, int rowInc, int colInc) {
+    private void processSensorVal(Map exploredMap, int sensorVal, int rowInc, int colInc) {
         for (int i = this.lowerRange; i <= this.upperRange; i++) {
             int row = this.sensorPosRow + (rowInc * i);
             int col = this.sensorPosCol + (colInc * i);

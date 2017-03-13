@@ -51,9 +51,8 @@ public class MapDescriptor {
      */
     private static String binToHex(String bin) {
         int dec = Integer.parseInt(bin, 2);
-        String hex = Integer.toHexString(dec);
 
-        return hex;
+        return Integer.toHexString(dec);
     }
 
     /**

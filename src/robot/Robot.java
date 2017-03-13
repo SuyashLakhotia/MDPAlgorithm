@@ -31,12 +31,11 @@ public class Robot {
     private int posRow; // center cell
     private int posCol; // center cell
     private DIRECTION robotDir;
-    private Sensor SRFrontLeft;
-    private Sensor SRFrontCenter;
-    private Sensor SRFrontRight;
-    private Sensor SRLeft;
-    private Sensor SRRight;
-    private int speed = RobotConstants.SPEED; // time taken (ms) for one movement
+    private final Sensor SRFrontLeft;
+    private final Sensor SRFrontCenter;
+    private final Sensor SRFrontRight;
+    private final Sensor SRLeft;
+    private final Sensor SRRight;
     private boolean touchedGoal;
     private boolean realBot;
 
@@ -91,7 +90,7 @@ public class Robot {
         if (!realBot) {
             // Emulate real movement by pausing execution.
             try {
-                TimeUnit.MILLISECONDS.sleep(speed);
+                TimeUnit.MILLISECONDS.sleep(RobotConstants.SPEED);
             } catch (InterruptedException e) {
                 System.out.println("Something went wrong in Robot.move()!");
             }
@@ -194,7 +193,7 @@ public class Robot {
     /**
      * Uses the current direction of the robot and the given movement to find the new direction of the robot.
      */
-    public DIRECTION findNewDirection(MOVEMENT m) {
+    private DIRECTION findNewDirection(MOVEMENT m) {
         if (m == MOVEMENT.RIGHT) {
             return DIRECTION.getNext(robotDir);
         } else {

@@ -13,10 +13,8 @@ import java.awt.*;
  */
 
 public class Map extends JPanel {
-    private Cell[][] grid;
-    private Robot bot;
-
-    private _DisplayCell[][] _mapCells = null; // for rendering in JFrame
+    private final Cell[][] grid;
+    private final Robot bot;
 
     /**
      * Initialises a Map object with a grid of Cell objects.
@@ -77,59 +75,6 @@ public class Map extends JPanel {
      */
     public boolean isVirtualWallCell(int row, int col) {
         return grid[row][col].getIsVirtualWall();
-    }
-
-    /**
-     * Returns true if all neighbors of the cell are explored.
-     */
-    public boolean getAllNeighboursExplored(int row, int col) {
-        int topRow = row + 1;
-        if (checkValidCoordinates(topRow, col - 1)) {
-            if (!getCell(topRow, col - 1).getIsExplored()) {
-                return false;
-            }
-        }
-        if (checkValidCoordinates(topRow, col)) {
-            if (!getCell(topRow, col).getIsExplored()) {
-                return false;
-            }
-        }
-        if (checkValidCoordinates(topRow, col + 1)) {
-            if (!getCell(topRow, col + 1).getIsExplored()) {
-                return false;
-            }
-        }
-
-        int sameRow = row;
-        if (checkValidCoordinates(sameRow, col - 1)) {
-            if (!getCell(sameRow, col - 1).getIsExplored()) {
-                return false;
-            }
-        }
-        if (checkValidCoordinates(sameRow, col + 1)) {
-            if (!getCell(sameRow, col + 1).getIsExplored()) {
-                return false;
-            }
-        }
-
-        int bottomRow = row - 1;
-        if (checkValidCoordinates(bottomRow, col - 1)) {
-            if (!getCell(bottomRow, col - 1).getIsExplored()) {
-                return false;
-            }
-        }
-        if (checkValidCoordinates(bottomRow, col)) {
-            if (!getCell(bottomRow, col).getIsExplored()) {
-                return false;
-            }
-        }
-        if (checkValidCoordinates(bottomRow, col + 1)) {
-            if (!getCell(bottomRow, col + 1).getIsExplored()) {
-                return false;
-            }
-        }
-
-        return true;
     }
 
     /**
@@ -208,7 +153,7 @@ public class Map extends JPanel {
      */
     public void paintComponent(Graphics g) {
         // Create a two-dimensional array of _DisplayCell objects for rendering.
-        _mapCells = new _DisplayCell[MapConstants.MAP_ROWS][MapConstants.MAP_COLS];
+        _DisplayCell[][] _mapCells = new _DisplayCell[MapConstants.MAP_ROWS][MapConstants.MAP_COLS];
         for (int mapRow = 0; mapRow < MapConstants.MAP_ROWS; mapRow++) {
             for (int mapCol = 0; mapCol < MapConstants.MAP_COLS; mapCol++) {
                 _mapCells[mapRow][mapCol] = new _DisplayCell(mapCol * GraphicsConstants.CELL_SIZE, mapRow * GraphicsConstants.CELL_SIZE, GraphicsConstants.CELL_SIZE);
@@ -265,19 +210,11 @@ public class Map extends JPanel {
     }
 
     private class _DisplayCell {
-        public int borderX;
-        public int borderY;
-        public int borderSize;
-
-        public int cellX;
-        public int cellY;
-        public int cellSize;
+        public final int cellX;
+        public final int cellY;
+        public final int cellSize;
 
         public _DisplayCell(int borderX, int borderY, int borderSize) {
-            this.borderX = borderX;
-            this.borderY = borderY;
-            this.borderSize = borderSize;
-
             this.cellX = borderX + GraphicsConstants.CELL_LINE_WEIGHT;
             this.cellY = GraphicsConstants.MAP_H - (borderY - GraphicsConstants.CELL_LINE_WEIGHT);
             this.cellSize = borderSize - (GraphicsConstants.CELL_LINE_WEIGHT * 2);

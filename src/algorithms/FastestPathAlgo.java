@@ -33,7 +33,7 @@ public class FastestPathAlgo {
     private double[][] gCosts;              // array of real cost from START to [row][col] i.e. g(n)
     private Robot bot;
     private Map map;
-    private Map realMap;
+    private final Map realMap;
     private int loopCount;
     private boolean explorationMode;
 

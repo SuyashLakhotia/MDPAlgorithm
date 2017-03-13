@@ -7,8 +7,8 @@ package map;
  */
 
 public class Cell {
-    private int row;
-    private int col;
+    private final int row;
+    private final int col;
     private boolean isObstacle;
     private boolean isVirtualWall;
     private boolean isExplored;

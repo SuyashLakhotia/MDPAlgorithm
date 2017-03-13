@@ -8,7 +8,7 @@ import java.awt.*;
  * @author Suyash Lakhotia
  */
 
-public class GraphicsConstants {
+class GraphicsConstants {
     public static final int CELL_LINE_WEIGHT = 2;
 
     public static final Color C_START = Color.BLUE;

@@ -36,14 +36,14 @@ public class Simulator {
     private static int timeLimit = 3600;            // time limit
     private static int coverageLimit = 300;         // coverage limit
 
-    private static CommMgr comm = CommMgr.getCommMgr();
-    private static boolean realRun = false;
+    private static final CommMgr comm = CommMgr.getCommMgr();
+    private static final boolean realRun = false;
 
     /**
      * Initialises the different maps and displays the application.
      */
     public static void main(String[] args) {
-        if (realRun) comm.openConnection(1000);
+        if (realRun) comm.openConnection();
 
         bot = new Robot(RobotConstants.START_ROW, RobotConstants.START_COL, realRun);
 
@@ -91,7 +91,7 @@ public class Simulator {
 
         // Display the application
         _appFrame.setVisible(true);
-        _appFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        _appFrame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
     }
 
     /**

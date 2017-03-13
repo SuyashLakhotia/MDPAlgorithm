@@ -11,8 +11,8 @@ import java.net.UnknownHostException;
  */
 
 public class CommMgr {
-    private String HOST = "192.168.2.1";
-    private int PORT = 8008;
+    private final String HOST = "192.168.2.1";
+    private final int PORT = 8008;
 
     public static final String START = "PC_START";      // Android --> PC
     public static final String BOT_START = "BOT_START"; // PC --> Arduino
@@ -37,7 +37,7 @@ public class CommMgr {
         return commMgr;
     }
 
-    public boolean openConnection(int timeout) {
+    public void openConnection() {
         System.out.println("Opening connection...");
 
         try {
@@ -48,7 +48,7 @@ public class CommMgr {
 
             System.out.println("openConnection() --> " + "Connection established successfully!");
 
-            return true;
+            return;
         } catch (UnknownHostException e) {
             System.out.println("openConnection() --> UnknownHostException");
         } catch (IOException e) {
@@ -59,7 +59,6 @@ public class CommMgr {
         }
 
         System.out.println("Failed to establish connection!");
-        return false;
     }
 
     public void closeConnection() {
@@ -83,7 +82,7 @@ public class CommMgr {
         }
     }
 
-    public boolean sendMsg(String msg, String msgType) {
+    public void sendMsg(String msg, String msgType) {
         System.out.println("Sending a message...");
 
         try {
@@ -99,15 +98,13 @@ public class CommMgr {
             System.out.println("Sending out message:\n" + outputMsg);
             writer.write(outputMsg);
             writer.flush();
-            return true;
+            return;
         } catch (IOException e) {
             System.out.println("sendMsg() --> IOException");
         } catch (Exception e) {
             System.out.println("sendMsg() --> Exception");
             System.out.println(e.toString());
         }
-
-        return false;
     }
 
     public String recvMsg() {
