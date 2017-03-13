@@ -88,11 +88,13 @@ public class Robot {
      * Takes in a MOVEMENT and moves the robot accordingly by changing its position and direction.
      */
     public void move(MOVEMENT m) {
-        // Emulate real movement by pausing execution.
-        try {
-            TimeUnit.MILLISECONDS.sleep(speed);
-        } catch (InterruptedException e) {
-            System.out.println("Something went wrong in Robot.move()!");
+        if (!realBot) {
+            // Emulate real movement by pausing execution.
+            try {
+                TimeUnit.MILLISECONDS.sleep(speed);
+            } catch (InterruptedException e) {
+                System.out.println("Something went wrong in Robot.move()!");
+            }
         }
 
         switch (m) {
