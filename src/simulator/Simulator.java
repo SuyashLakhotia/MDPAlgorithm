@@ -184,7 +184,7 @@ public class Simulator {
                 exploredMap.repaint();
 
                 ExplorationAlgo exploration;
-                exploration = new ExplorationAlgo(exploredMap, realMap, bot, coverageLimit, timeLimit, realRun);
+                exploration = new ExplorationAlgo(exploredMap, realMap, bot, coverageLimit, timeLimit);
 
                 if (realRun) {
                     CommMgr.getCommMgr().sendMsg(null, CommMgr.BOT_START);
@@ -254,7 +254,7 @@ public class Simulator {
                 bot.setRobotPos(RobotConstants.START_ROW, RobotConstants.START_COL);
                 exploredMap.repaint();
 
-                ExplorationAlgo timeExplo = new ExplorationAlgo(exploredMap, realMap, bot, coverageLimit, timeLimit, realRun);
+                ExplorationAlgo timeExplo = new ExplorationAlgo(exploredMap, realMap, bot, coverageLimit, timeLimit);
                 timeExplo.runExploration();
 
                 generateMapDescriptor(exploredMap);
@@ -301,7 +301,7 @@ public class Simulator {
                 bot.setRobotPos(RobotConstants.START_ROW, RobotConstants.START_COL);
                 exploredMap.repaint();
 
-                ExplorationAlgo coverageExplo = new ExplorationAlgo(exploredMap, realMap, bot, coverageLimit, timeLimit, realRun);
+                ExplorationAlgo coverageExplo = new ExplorationAlgo(exploredMap, realMap, bot, coverageLimit, timeLimit);
                 coverageExplo.runExploration();
 
                 generateMapDescriptor(exploredMap);
