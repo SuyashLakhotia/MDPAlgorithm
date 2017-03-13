@@ -147,6 +147,13 @@ public class Map extends JPanel {
     }
 
     /**
+     * Returns true if the given cell is out of bounds or an obstacle.
+     */
+    public boolean getIsObstacleOrWall(int row, int col) {
+        return checkValidCoordinates(row, col) || getCell(row, col).getIsObstacle();
+    }
+
+    /**
      * Overrides JComponent's paintComponent() method. It creates a two-dimensional array of _DisplayCell objects
      * to store the current map state. Then, it paints square cells for the grid with the appropriate colors as
      * well as the robot on-screen.

@@ -74,6 +74,10 @@ public class Robot {
         return robotDir;
     }
 
+    public boolean getRealBot() {
+        return realBot;
+    }
+
     private void updateTouchedGoal() {
         if (this.getRobotPosRow() == MapConstants.GOAL_ROW && this.getRobotPosCol() == MapConstants.GOAL_COL)
             this.touchedGoal = true;
@@ -151,6 +155,50 @@ public class Robot {
         CommMgr comm = CommMgr.getCommMgr();
         comm.sendMsg(MOVEMENT.print(m) + "", CommMgr.INSTRUCTIONS);
         comm.sendMsg(this.getRobotPosRow() + "," + this.getRobotPosCol() + "," + DIRECTION.print(this.getRobotCurDir()), CommMgr.BOT_POS);
+    }
+
+    /**
+     * Turns the bot in the needed direction (if necessary) and sends the signal to calibrate the bot. Once calibrated,
+     * the bot is turned back into its original direction.
+     */
+    public void calibrateBot(int opt) {
+        if (opt == 1) sendMovement(MOVEMENT.CALIBRATE);
+        else if (opt == 2) {
+            DIRECTION origDir = robotDir;
+            if (posRow == 0) {
+                turnBotDirection(DIRECTION.SOUTH);
+                sendMovement(MOVEMENT.CALIBRATE);
+            } else if (posCol == 14) {
+                turnBotDirection(DIRECTION.EAST);
+                sendMovement(MOVEMENT.CALIBRATE);
+            } else if (posRow == 19) {
+                turnBotDirection(DIRECTION.NORTH);
+                sendMovement(MOVEMENT.CALIBRATE);
+            } else if (posCol == 0) {
+                turnBotDirection(DIRECTION.WEST);
+                sendMovement(MOVEMENT.CALIBRATE);
+            }
+            turnBotDirection(origDir);
+        }
+    }
+
+    /**
+     * Turns the robot to the required direction.
+     */
+    public void turnBotDirection(DIRECTION targetDir) {
+        int numOfTurn = Math.abs(robotDir.ordinal() - targetDir.ordinal());
+        if (numOfTurn > 2) numOfTurn = numOfTurn % 2;
+
+        if (numOfTurn == 1) {
+            if (DIRECTION.getNext(robotDir) == targetDir) {
+                move(MOVEMENT.RIGHT);
+            } else {
+                move(MOVEMENT.LEFT);
+            }
+        } else if (numOfTurn == 2) {
+            move(MOVEMENT.RIGHT);
+            move(MOVEMENT.RIGHT);
+        }
     }
 
     /**
