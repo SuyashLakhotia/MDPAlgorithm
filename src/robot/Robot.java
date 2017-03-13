@@ -140,6 +140,7 @@ public class Robot {
         }
 
         if (realBot) sendMovement(m);
+        else System.out.println("Move: " + MOVEMENT.print(m));
 
         updateTouchedGoal();
     }
