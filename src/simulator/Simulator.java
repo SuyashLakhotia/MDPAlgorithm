@@ -218,12 +218,7 @@ public class Simulator {
                 realMap.repaint();
 
                 FastestPathAlgo fastestPath;
-
-                if (!realRun) {
-                    fastestPath = new FastestPathAlgo(realMap, bot);
-                } else {
-                    fastestPath = new FastestPathAlgo(exploredMap, bot);
-                }
+                fastestPath = new FastestPathAlgo(exploredMap, bot);
 
                 fastestPath.runFastestPath(RobotConstants.GOAL_ROW, RobotConstants.GOAL_COL);
 
@@ -237,11 +232,7 @@ public class Simulator {
         btn_FastestPath.addMouseListener(new MouseAdapter() {
             public void mousePressed(MouseEvent e) {
                 CardLayout cl = ((CardLayout) _mapCards.getLayout());
-                if (!realRun) {
-                    cl.show(_mapCards, "REAL_MAP");
-                } else {
-                    cl.show(_mapCards, "EXPLORATION");
-                }
+                cl.show(_mapCards, "EXPLORATION");
                 new FastestPath().execute();
             }
         });
