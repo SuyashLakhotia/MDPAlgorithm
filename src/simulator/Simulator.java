@@ -99,11 +99,17 @@ public class Simulator {
      * by default.
      */
     private static void initMainLayout() {
-        _mapCards.add(realMap, "REAL_MAP");
+        if (!realRun) {
+            _mapCards.add(realMap, "REAL_MAP");
+        }
         _mapCards.add(exploredMap, "EXPLORATION");
 
         CardLayout cl = ((CardLayout) _mapCards.getLayout());
-        cl.show(_mapCards, "REAL_MAP");
+        if (!realRun) {
+            cl.show(_mapCards, "REAL_MAP");
+        } else {
+            cl.show(_mapCards, "EXPLORATION");
+        }
     }
 
     /**
@@ -127,35 +133,37 @@ public class Simulator {
      * (for user input) for the different functions of the buttons.
      */
     private static void addButtons() {
-        // Load Map Button
-        JButton btn_LoadMap = new JButton("Load Map");
-        formatButton(btn_LoadMap);
-        btn_LoadMap.addMouseListener(new MouseAdapter() {
-            public void mousePressed(MouseEvent e) {
-                JDialog loadMapDialog = new JDialog(_appFrame, "Load Map", true);
-                loadMapDialog.setSize(400, 60);
-                loadMapDialog.setLayout(new FlowLayout());
+        if (!realRun) {
+            // Load Map Button
+            JButton btn_LoadMap = new JButton("Load Map");
+            formatButton(btn_LoadMap);
+            btn_LoadMap.addMouseListener(new MouseAdapter() {
+                public void mousePressed(MouseEvent e) {
+                    JDialog loadMapDialog = new JDialog(_appFrame, "Load Map", true);
+                    loadMapDialog.setSize(400, 60);
+                    loadMapDialog.setLayout(new FlowLayout());
 
-                final JTextField loadTF = new JTextField(15);
-                JButton loadMapButton = new JButton("Load");
+                    final JTextField loadTF = new JTextField(15);
+                    JButton loadMapButton = new JButton("Load");
 
-                loadMapButton.addMouseListener(new MouseAdapter() {
-                    public void mousePressed(MouseEvent e) {
-                        loadMapDialog.setVisible(false);
-                        loadMapFromDisk(realMap, loadTF.getText());
-                        CardLayout cl = ((CardLayout) _mapCards.getLayout());
-                        cl.show(_mapCards, "REAL_MAP");
-                        realMap.repaint();
-                    }
-                });
+                    loadMapButton.addMouseListener(new MouseAdapter() {
+                        public void mousePressed(MouseEvent e) {
+                            loadMapDialog.setVisible(false);
+                            loadMapFromDisk(realMap, loadTF.getText());
+                            CardLayout cl = ((CardLayout) _mapCards.getLayout());
+                            cl.show(_mapCards, "REAL_MAP");
+                            realMap.repaint();
+                        }
+                    });
 
-                loadMapDialog.add(new JLabel("File Name: "));
-                loadMapDialog.add(loadTF);
-                loadMapDialog.add(loadMapButton);
-                loadMapDialog.setVisible(true);
-            }
-        });
-        _buttons.add(btn_LoadMap);
+                    loadMapDialog.add(new JLabel("File Name: "));
+                    loadMapDialog.add(loadTF);
+                    loadMapDialog.add(loadMapButton);
+                    loadMapDialog.setVisible(true);
+                }
+            });
+            _buttons.add(btn_LoadMap);
+        }
 
 
         // Exploration Class for Multithreading
