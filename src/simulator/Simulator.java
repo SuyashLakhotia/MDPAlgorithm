@@ -37,7 +37,7 @@ public class Simulator {
     private static int coverageLimit = 300;         // coverage limit
 
     private static final CommMgr comm = CommMgr.getCommMgr();
-    private static final boolean realRun = false;
+    private static final boolean realRun = true;
 
     /**
      * Initialises the different maps and displays the application.

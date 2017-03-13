@@ -90,7 +90,7 @@ public class CommMgr {
             if (msg == null) {
                 outputMsg = msgType + "\n";
             } else if (msgType.equals(MAP_STRINGS) || msgType.equals(BOT_POS)) {
-                outputMsg = msgType + " " + msg;
+                outputMsg = msgType + " " + msg + "\n";
             } else {
                 outputMsg = msgType + "\n" + msg + "\n";
             }
@@ -98,7 +98,6 @@ public class CommMgr {
             System.out.println("Sending out message:\n" + outputMsg);
             writer.write(outputMsg);
             writer.flush();
-            return;
         } catch (IOException e) {
             System.out.println("sendMsg() --> IOException");
         } catch (Exception e) {

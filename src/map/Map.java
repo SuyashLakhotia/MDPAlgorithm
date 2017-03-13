@@ -150,7 +150,7 @@ public class Map extends JPanel {
      * Returns true if the given cell is out of bounds or an obstacle.
      */
     public boolean getIsObstacleOrWall(int row, int col) {
-        return checkValidCoordinates(row, col) || getCell(row, col).getIsObstacle();
+        return !checkValidCoordinates(row, col) || getCell(row, col).getIsObstacle();
     }
 
     /**
