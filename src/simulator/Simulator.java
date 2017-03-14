@@ -165,6 +165,28 @@ public class Simulator {
             _buttons.add(btn_LoadMap);
         }
 
+        // FastestPath Class for Multithreading
+        class FastestPath extends SwingWorker<Integer, String> {
+            protected Integer doInBackground() throws Exception {
+                bot.setRobotPos(RobotConstants.START_ROW, RobotConstants.START_COL);
+                exploredMap.repaint();
+
+                if (realRun) {
+                    while (true) {
+                        System.out.println("Waiting for FP_START...");
+                        String msg = comm.recvMsg();
+                        if (msg.equals(CommMgr.FP_START)) break;
+                    }
+                }
+
+                FastestPathAlgo fastestPath;
+                fastestPath = new FastestPathAlgo(exploredMap, bot);
+
+                fastestPath.runFastestPath(RobotConstants.GOAL_ROW, RobotConstants.GOAL_COL);
+
+                return 222;
+            }
+        }
 
         // Exploration Class for Multithreading
         class Exploration extends SwingWorker<Integer, String> {
@@ -176,10 +198,10 @@ public class Simulator {
                     col = RobotConstants.START_COL;
                 } else {
                     while (true) {
-                        System.out.println("Waiting for PC_START...");
+                        System.out.println("Waiting for EX_START...");
                         String msg = comm.recvMsg();
                         String[] msgArr = msg.split(";");
-                        if (msgArr[0].equals(CommMgr.START)) {
+                        if (msgArr[0].equals(CommMgr.EX_START)) {
                             String[] coords = msgArr[1].split(",");
                             row = Integer.parseInt(coords[0]);
                             col = Integer.parseInt(coords[1]);
@@ -199,8 +221,11 @@ public class Simulator {
                 }
 
                 exploration.runExploration();
-
                 generateMapDescriptor(exploredMap);
+
+                if (realRun) {
+                    new FastestPath().execute();
+                }
 
                 return 111;
             }
@@ -217,22 +242,6 @@ public class Simulator {
             }
         });
         _buttons.add(btn_Exploration);
-
-
-        // FastestPath Class for Multithreading
-        class FastestPath extends SwingWorker<Integer, String> {
-            protected Integer doInBackground() throws Exception {
-                bot.setRobotPos(RobotConstants.START_ROW, RobotConstants.START_COL);
-                realMap.repaint();
-
-                FastestPathAlgo fastestPath;
-                fastestPath = new FastestPathAlgo(exploredMap, bot);
-
-                fastestPath.runFastestPath(RobotConstants.GOAL_ROW, RobotConstants.GOAL_COL);
-
-                return 222;
-            }
-        }
 
         // Fastest Path Button
         JButton btn_FastestPath = new JButton("Fastest Path");

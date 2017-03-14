@@ -14,12 +14,13 @@ public class CommMgr {
     private final String HOST = "192.168.2.1";
     private final int PORT = 8008;
 
-    public static final String START = "PC_START";      // Android --> PC
-    public static final String BOT_START = "BOT_START"; // PC --> Arduino
-    public static final String SENSOR_DATA = "SDATA";   // Arduino --> PC
-    public static final String INSTRUCTIONS = "INSTR";  // PC --> Arduino
-    public static final String MAP_STRINGS = "MAP";      // PC --> Android
-    public static final String BOT_POS = "BOT_POS";     // PC --> Android
+    public static final String EX_START = "EX_START";       // Android --> PC
+    public static final String FP_START = "FP_START";       // Android --> PC
+    public static final String MAP_STRINGS = "MAP";         // PC --> Android
+    public static final String BOT_POS = "BOT_POS";         // PC --> Android
+    public static final String BOT_START = "BOT_START";     // PC --> Arduino
+    public static final String INSTRUCTIONS = "INSTR";      // PC --> Arduino
+    public static final String SENSOR_DATA = "SDATA";       // Arduino --> PC
 
     private static CommMgr commMgr = null;
     private static Socket conn = null;
@@ -114,12 +115,7 @@ public class CommMgr {
             String input = reader.readLine();
 
             if (input != null && input.length() > 0) {
-                if (input.split(";")[0].equals(START)) {
-                    sb.append(input);
-                } else if (input.split(";")[0].equals(SENSOR_DATA)) {
-                    sb.append(input);
-                }
-
+                sb.append(input);
                 System.out.println(sb.toString());
                 return sb.toString();
             }
