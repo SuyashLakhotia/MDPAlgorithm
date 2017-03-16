@@ -47,7 +47,6 @@ public class ExplorationAlgo {
 
         if (bot.getRealBot()) {
             moveBot(MOVEMENT.LEFT);
-            moveBot(MOVEMENT.CALIBRATE);
             moveBot(MOVEMENT.LEFT);
             moveBot(MOVEMENT.CALIBRATE);
             moveBot(MOVEMENT.RIGHT);
@@ -198,7 +197,9 @@ public class ExplorationAlgo {
         returnToStart.runFastestPath(RobotConstants.START_ROW, RobotConstants.START_COL);
 
         if (bot.getRealBot()) {
-            turnBotDirection(DIRECTION.EAST);
+            turnBotDirection(DIRECTION.WEST);
+            moveBot(MOVEMENT.CALIBRATE);
+            turnBotDirection(DIRECTION.SOUTH);
             moveBot(MOVEMENT.CALIBRATE);
         }
 
@@ -262,23 +263,41 @@ public class ExplorationAlgo {
         }
 
         if (bot.getRealBot() && !calibrationMode) {
-            if (canCalibrateOnTheSpot(bot.getRobotCurDir())) {
+            calibrationMode = true;
+
+            if (((bot.getRobotPosRow() == 1 && bot.getRobotPosCol() == 1) || (bot.getRobotPosRow() == 1 && bot.getRobotPosCol() == 13) || (bot.getRobotPosRow() == 18 && bot.getRobotPosCol() == 1) || (bot.getRobotPosRow() == 18 && bot.getRobotPosCol() == 13)) && lastCalibrate > 2) {
                 lastCalibrate = 0;
-                calibrationMode = true;
+
+                if (bot.getRobotPosCol() == 1) {
+                    turnBotDirection(DIRECTION.WEST);
+                    moveBot(MOVEMENT.CALIBRATE);
+                } else if (bot.getRobotPosCol() == 13) {
+                    turnBotDirection(DIRECTION.EAST);
+                    moveBot(MOVEMENT.CALIBRATE);
+                }
+
+                if (bot.getRobotPosRow() == 1) {
+                    turnBotDirection(DIRECTION.SOUTH);
+                    moveBot(MOVEMENT.CALIBRATE);
+                } else if (bot.getRobotPosRow() == 18) {
+                    turnBotDirection(DIRECTION.NORTH);
+                    moveBot(MOVEMENT.CALIBRATE);
+                }
+            } else if (canCalibrateOnTheSpot(bot.getRobotCurDir())) {
+                lastCalibrate = 0;
                 moveBot(MOVEMENT.CALIBRATE);
-                calibrationMode = false;
             } else {
                 lastCalibrate++;
-                if (lastCalibrate >= 5) {
+                if (lastCalibrate >= 7) {
                     DIRECTION targetDir = getCalibrationDirection();
                     if (targetDir != null) {
                         lastCalibrate = 0;
-                        calibrationMode = true;
                         calibrateBot(targetDir);
-                        calibrationMode = false;
                     }
                 }
             }
+
+            calibrationMode = false;
         }
     }
 
