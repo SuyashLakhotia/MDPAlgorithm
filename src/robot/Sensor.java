@@ -15,13 +15,15 @@ public class Sensor {
     private int sensorPosRow;
     private int sensorPosCol;
     private DIRECTION sensorDir;
+    private String id;
 
-    public Sensor(int lowerRange, int upperRange, int row, int col, DIRECTION dir) {
+    public Sensor(int lowerRange, int upperRange, int row, int col, DIRECTION dir, String id) {
         this.lowerRange = lowerRange;
         this.upperRange = upperRange;
         this.sensorPosRow = row;
         this.sensorPosCol = col;
         this.sensorDir = dir;
+        this.id = id;
     }
 
     public void setSensor(int row, int col, DIRECTION dir) {
@@ -105,8 +107,10 @@ public class Sensor {
                 break;
             }
 
-            if (exploredMap.getCell(row, col).getIsObstacle()) {
+            if (exploredMap.getCell(row, col).getIsObstacle() && (id.equals("SRFL") || id.equals("SRFC") || id.equals("SRFR"))) {
                 exploredMap.setObstacleCell(row, col, false);
+            } else {
+                break;
             }
         }
     }

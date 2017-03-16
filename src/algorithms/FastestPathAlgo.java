@@ -275,82 +275,81 @@ public class FastestPathAlgo {
 
         Cell temp = path.pop();
         DIRECTION targetDir;
-        MOVEMENT m;
 
-        while ((bot.getRobotPosRow() != goalRow) || (bot.getRobotPosCol() != goalCol)) {
-            if (bot.getRobotPosRow() == temp.getRow() && bot.getRobotPosCol() == temp.getCol()) {
+        ArrayList<MOVEMENT> movements = new ArrayList<>();
+
+        Robot tempBot = new Robot(1, 1, false);
+        tempBot.setSpeed(0);
+        while ((tempBot.getRobotPosRow() != goalRow) || (tempBot.getRobotPosCol() != goalCol)) {
+            if (tempBot.getRobotPosRow() == temp.getRow() && tempBot.getRobotPosCol() == temp.getCol()) {
                 temp = path.pop();
             }
 
-            targetDir = getTargetDir(bot.getRobotPosRow(), bot.getRobotPosCol(), bot.getRobotCurDir(), temp);
+            targetDir = getTargetDir(tempBot.getRobotPosRow(), tempBot.getRobotPosCol(), tempBot.getRobotCurDir(), temp);
 
-            if (bot.getRobotCurDir() != targetDir) {
-                m = getTargetMove(bot.getRobotCurDir(), targetDir);
+            MOVEMENT m;
+            if (tempBot.getRobotCurDir() != targetDir) {
+                m = getTargetMove(tempBot.getRobotCurDir(), targetDir);
             } else {
                 m = MOVEMENT.FORWARD;
-                if (!canMoveForward()) {
-                    System.out.println("Early termination of fastest path execution.");
-                    return "T";
-                }
             }
 
-            System.out.println("Movement " + MOVEMENT.print(m) + " from (" + bot.getRobotPosRow() + ", " + bot.getRobotPosCol() + ") to (" + temp.getRow() + ", " + temp.getCol() + ")");
+            System.out.println("Movement " + MOVEMENT.print(m) + " from (" + tempBot.getRobotPosRow() + ", " + tempBot.getRobotPosCol() + ") to (" + temp.getRow() + ", " + temp.getCol() + ")");
+
+            tempBot.move(m);
+            movements.add(m);
             outputString.append(MOVEMENT.print(m));
-
-            if (!bot.getRealBot()) {
-                bot.move(m);
-                this.map.repaint();
-            }
-
-            // During exploration, use sensor data to update map.
-            if (explorationMode) {
-                bot.setSensors();
-                bot.sense(this.map, this.realMap);
-                this.map.repaint();
-            }
         }
 
-        String movements = outputString.toString();
-        System.out.println("\nMovements: " + movements);
-
-        if (bot.getRealBot()) {
-            executePathRealBot(movements);
-        }
-
-        return outputString.toString();
-    }
-
-    /**
-     * Executes the fastest path by sending the movements to the real bot in an optimized manner.
-     */
-    private void executePathRealBot(String movements) {
-        char[] movementsArr = movements.toCharArray();
-        int fCount = 0;
-        for (char c : movementsArr) {
-            if (c == 'F') {
-                fCount++;
-                if (fCount == 10) {
-                    bot.moveForwardMultiple(fCount);
-                    fCount = 0;
-                    map.repaint();
-                }
-            } else if (c == 'R' || c == 'L') {
-                if (fCount > 0) {
-                    bot.moveForwardMultiple(fCount);
-                    fCount = 0;
-                    map.repaint();
+        if (!bot.getRealBot() || explorationMode) {
+            for (MOVEMENT x : movements) {
+                if (x == MOVEMENT.FORWARD) {
+                    if (!canMoveForward()) {
+                        System.out.println("Early termination of fastest path execution.");
+                        return "T";
+                    }
                 }
 
-                if (c == 'R') bot.move(MOVEMENT.RIGHT);
-                if (c == 'L') bot.move(MOVEMENT.LEFT);
+                bot.move(x);
+                this.map.repaint();
+
+                // During exploration, use sensor data to update map.
+                if (explorationMode) {
+                    bot.setSensors();
+                    bot.sense(this.map, this.realMap);
+                    this.map.repaint();
+                }
+            }
+        } else {
+            int fCount = 0;
+            for (MOVEMENT x : movements) {
+                if (x == MOVEMENT.FORWARD) {
+                    fCount++;
+                    if (fCount == 10) {
+                        bot.moveForwardMultiple(fCount);
+                        fCount = 0;
+                        map.repaint();
+                    }
+                } else if (x == MOVEMENT.RIGHT || x == MOVEMENT.LEFT) {
+                    if (fCount > 0) {
+                        bot.moveForwardMultiple(fCount);
+                        fCount = 0;
+                        map.repaint();
+                    }
+
+                    bot.move(x);
+                    map.repaint();
+                }
+            }
+
+            if (fCount > 0) {
+                bot.moveForwardMultiple(fCount);
                 map.repaint();
             }
         }
 
-        if (fCount > 0) {
-            bot.moveForwardMultiple(fCount);
-            map.repaint();
-        }
+        System.out.println("\nMovements: " + outputString.toString());
+        return outputString.toString();
     }
 
     /**

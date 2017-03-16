@@ -75,7 +75,7 @@ public class ExplorationAlgo {
             System.out.println("Area explored: " + areaExplored);
 
             if (bot.getRobotPosRow() == r && bot.getRobotPosCol() == c) {
-                if (areaExplored >= 260) {
+                if (areaExplored >= 100) {
                     break;
                 }
             }
@@ -297,7 +297,7 @@ public class ExplorationAlgo {
                 moveBot(MOVEMENT.CALIBRATE);
             } else {
                 lastCalibrate++;
-                if (lastCalibrate >= 7) {
+                if (lastCalibrate >= 5) {
                     DIRECTION targetDir = getCalibrationDirection();
                     if (targetDir != null) {
                         lastCalibrate = 0;

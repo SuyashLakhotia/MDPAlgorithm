@@ -31,6 +31,7 @@ public class Robot {
     private int posRow; // center cell
     private int posCol; // center cell
     private DIRECTION robotDir;
+    private int speed;
     private final Sensor SRFrontLeft;
     private final Sensor SRFrontCenter;
     private final Sensor SRFrontRight;
@@ -43,14 +44,15 @@ public class Robot {
         posRow = row;
         posCol = col;
         robotDir = RobotConstants.START_DIR;
+        speed = RobotConstants.SPEED;
 
         this.realBot = realBot;
 
-        SRFrontLeft = new Sensor(RobotConstants.SENSOR_SHORT_RANGE_L, RobotConstants.SENSOR_SHORT_RANGE_H, this.posRow + 1, this.posCol - 1, this.robotDir);
-        SRFrontCenter = new Sensor(RobotConstants.SENSOR_SHORT_RANGE_L, RobotConstants.SENSOR_SHORT_RANGE_H, this.posRow + 1, this.posCol, this.robotDir);
-        SRFrontRight = new Sensor(RobotConstants.SENSOR_SHORT_RANGE_L, RobotConstants.SENSOR_SHORT_RANGE_H, this.posRow + 1, this.posCol + 1, this.robotDir);
-        SRLeft = new Sensor(RobotConstants.SENSOR_SHORT_RANGE_L, RobotConstants.SENSOR_SHORT_RANGE_H, this.posRow, this.posCol - 1, findNewDirection(MOVEMENT.LEFT));
-        SRRight = new Sensor(RobotConstants.SENSOR_SHORT_RANGE_L, RobotConstants.SENSOR_SHORT_RANGE_H, this.posRow, this.posCol + 1, findNewDirection(MOVEMENT.RIGHT));
+        SRFrontLeft = new Sensor(RobotConstants.SENSOR_SHORT_RANGE_L, RobotConstants.SENSOR_SHORT_RANGE_H, this.posRow + 1, this.posCol - 1, this.robotDir, "SRFL");
+        SRFrontCenter = new Sensor(RobotConstants.SENSOR_SHORT_RANGE_L, RobotConstants.SENSOR_SHORT_RANGE_H, this.posRow + 1, this.posCol, this.robotDir, "SRFC");
+        SRFrontRight = new Sensor(RobotConstants.SENSOR_SHORT_RANGE_L, RobotConstants.SENSOR_SHORT_RANGE_H, this.posRow + 1, this.posCol + 1, this.robotDir, "SRFR");
+        SRLeft = new Sensor(RobotConstants.SENSOR_SHORT_RANGE_L, RobotConstants.SENSOR_SHORT_RANGE_H, this.posRow, this.posCol - 1, findNewDirection(MOVEMENT.LEFT), "SRL");
+        SRRight = new Sensor(RobotConstants.SENSOR_SHORT_RANGE_L, RobotConstants.SENSOR_SHORT_RANGE_H, this.posRow, this.posCol + 1, findNewDirection(MOVEMENT.RIGHT), "SRR");
     }
 
     public void setRobotPos(int row, int col) {
@@ -68,6 +70,10 @@ public class Robot {
 
     public void setRobotDir(DIRECTION dir) {
         robotDir = dir;
+    }
+
+    public void setSpeed(int speed) {
+        this.speed = speed;
     }
 
     public DIRECTION getRobotCurDir() {
@@ -94,7 +100,7 @@ public class Robot {
         if (!realBot) {
             // Emulate real movement by pausing execution.
             try {
-                TimeUnit.MILLISECONDS.sleep(RobotConstants.SPEED);
+                TimeUnit.MILLISECONDS.sleep(speed);
             } catch (InterruptedException e) {
                 System.out.println("Something went wrong in Robot.move()!");
             }
@@ -189,7 +195,9 @@ public class Robot {
     private void sendMovement(MOVEMENT m) {
         CommMgr comm = CommMgr.getCommMgr();
         comm.sendMsg(MOVEMENT.print(m) + "", CommMgr.INSTRUCTIONS);
-        comm.sendMsg(this.getRobotPosRow() + "," + this.getRobotPosCol() + "," + DIRECTION.print(this.getRobotCurDir()), CommMgr.BOT_POS);
+        if (m != MOVEMENT.CALIBRATE) {
+            comm.sendMsg(this.getRobotPosRow() + "," + this.getRobotPosCol() + "," + DIRECTION.print(this.getRobotCurDir()), CommMgr.BOT_POS);
+        }
     }
 
     /**
