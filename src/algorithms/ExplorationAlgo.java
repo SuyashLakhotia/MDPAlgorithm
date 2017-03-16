@@ -45,6 +45,16 @@ public class ExplorationAlgo {
         startTime = System.currentTimeMillis();
         endTime = startTime + (timeLimit * 1000);
 
+        if (bot.getRealBot()) {
+            moveBot(MOVEMENT.LEFT);
+            moveBot(MOVEMENT.CALIBRATE);
+            moveBot(MOVEMENT.LEFT);
+            moveBot(MOVEMENT.CALIBRATE);
+            moveBot(MOVEMENT.RIGHT);
+            moveBot(MOVEMENT.CALIBRATE);
+            moveBot(MOVEMENT.RIGHT);
+        }
+
         senseAndRepaint();
         areaExplored = calculateAreaExplored();
         System.out.println("Explored Area: " + areaExplored);
@@ -186,6 +196,12 @@ public class ExplorationAlgo {
 
         FastestPathAlgo returnToStart = new FastestPathAlgo(exMap, bot, realMap);
         returnToStart.runFastestPath(RobotConstants.START_ROW, RobotConstants.START_COL);
+
+        if (bot.getRealBot()) {
+            turnBotDirection(DIRECTION.EAST);
+            moveBot(MOVEMENT.CALIBRATE);
+        }
+
         turnBotDirection(DIRECTION.NORTH);
 
         System.out.println("Exploration complete!");
