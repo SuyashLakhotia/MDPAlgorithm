@@ -199,13 +199,11 @@ public class ExplorationAlgo {
      * Returns true for cells that are explored and not obstacles.
      */
     private boolean isExploredNotObstacle(int r, int c) {
-        boolean b = false;
         if (exMap.checkValidCoordinates(r, c)) {
             Cell tmp = exMap.getCell(r, c);
-            b = (tmp.getIsExplored() && (!tmp.getIsObstacle()));
+            return (tmp.getIsExplored() && !tmp.getIsObstacle());
         }
-
-        return b;
+        return false;
     }
 
     /**
