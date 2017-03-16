@@ -73,8 +73,14 @@ public class ExplorationAlgo {
 
             areaExplored = calculateAreaExplored();
             System.out.println("Area explored: " + areaExplored);
+
+            if (bot.getRobotPosRow() == r && bot.getRobotPosCol() == c) {
+                if (areaExplored >= 260) {
+                    break;
+                }
+            }
         }
-        while (!(bot.getRobotPosRow() == r && bot.getRobotPosCol() == c) && areaExplored <= coverageLimit && System.currentTimeMillis() <= endTime);
+        while (areaExplored <= coverageLimit && System.currentTimeMillis() <= endTime);
 
         goHome();
     }
@@ -267,6 +273,7 @@ public class ExplorationAlgo {
 
             if (((bot.getRobotPosRow() == 1 && bot.getRobotPosCol() == 1) || (bot.getRobotPosRow() == 1 && bot.getRobotPosCol() == 13) || (bot.getRobotPosRow() == 18 && bot.getRobotPosCol() == 1) || (bot.getRobotPosRow() == 18 && bot.getRobotPosCol() == 13)) && lastCalibrate > 2) {
                 lastCalibrate = 0;
+                DIRECTION origDir = bot.getRobotCurDir();
 
                 if (bot.getRobotPosCol() == 1) {
                     turnBotDirection(DIRECTION.WEST);
@@ -283,6 +290,8 @@ public class ExplorationAlgo {
                     turnBotDirection(DIRECTION.NORTH);
                     moveBot(MOVEMENT.CALIBRATE);
                 }
+
+                turnBotDirection(origDir);
             } else if (canCalibrateOnTheSpot(bot.getRobotCurDir())) {
                 lastCalibrate = 0;
                 moveBot(MOVEMENT.CALIBRATE);
