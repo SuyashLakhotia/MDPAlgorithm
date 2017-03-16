@@ -296,8 +296,11 @@ public class FastestPathAlgo {
 
             System.out.println("Movement " + MOVEMENT.print(m) + " from (" + bot.getRobotPosRow() + ", " + bot.getRobotPosCol() + ") to (" + temp.getRow() + ", " + temp.getCol() + ")");
             outputString.append(MOVEMENT.print(m));
-            bot.move(m);
-            this.map.repaint();
+
+            if (!bot.getRealBot()) {
+                bot.move(m);
+                this.map.repaint();
+            }
 
             // During exploration, use sensor data to update map.
             if (explorationMode) {
@@ -307,8 +310,47 @@ public class FastestPathAlgo {
             }
         }
 
-        System.out.println("\nMovements: " + outputString.toString());
+        String movements = outputString.toString();
+        System.out.println("\nMovements: " + movements);
+
+        if (bot.getRealBot()) {
+            executePathRealBot(movements);
+        }
+
         return outputString.toString();
+    }
+
+    /**
+     * Executes the fastest path by sending the movements to the real bot in an optimized manner.
+     */
+    private void executePathRealBot(String movements) {
+        char[] movementsArr = movements.toCharArray();
+        int fCount = 0;
+        for (char c : movementsArr) {
+            if (c == 'F') {
+                fCount++;
+                if (fCount == 10) {
+                    bot.moveForwardMultiple(fCount);
+                    fCount = 0;
+                    map.repaint();
+                }
+            } else if (c == 'R' || c == 'L') {
+                if (fCount > 0) {
+                    bot.moveForwardMultiple(fCount);
+                    fCount = 0;
+                    map.repaint();
+                }
+
+                if (c == 'R') bot.move(MOVEMENT.RIGHT);
+                if (c == 'L') bot.move(MOVEMENT.LEFT);
+                map.repaint();
+            }
+        }
+
+        if (fCount > 0) {
+            bot.moveForwardMultiple(fCount);
+            map.repaint();
+        }
     }
 
     /**

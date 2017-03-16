@@ -151,6 +151,39 @@ public class Robot {
     }
 
     /**
+     * Sends a number instead of 'F' for multiple continuous forward movements.
+     */
+    public void moveForwardMultiple(int count) {
+        if (count == 1) {
+            move(MOVEMENT.FORWARD);
+        } else {
+            CommMgr comm = CommMgr.getCommMgr();
+            if (count == 10) {
+                comm.sendMsg("0", CommMgr.INSTRUCTIONS);
+            } else if (count < 10) {
+                comm.sendMsg(Integer.toString(count), CommMgr.INSTRUCTIONS);
+            }
+
+            switch (robotDir) {
+                case NORTH:
+                    posRow += count;
+                    break;
+                case EAST:
+                    posCol += count;
+                    break;
+                case SOUTH:
+                    posRow += count;
+                    break;
+                case WEST:
+                    posCol += count;
+                    break;
+            }
+
+            comm.sendMsg(this.getRobotPosRow() + "," + this.getRobotPosCol() + "," + DIRECTION.print(this.getRobotCurDir()), CommMgr.BOT_POS);
+        }
+    }
+
+    /**
      * Uses the CommMgr to send the next movement to the robot.
      */
     private void sendMovement(MOVEMENT m) {
