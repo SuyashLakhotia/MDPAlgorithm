@@ -76,12 +76,12 @@ public class ExplorationAlgo {
     private void nextMove() {
         if (lookRight()) {
             moveBot(MOVEMENT.RIGHT);
-            moveBot(MOVEMENT.FORWARD);
+            if (lookForward()) moveBot(MOVEMENT.FORWARD);
         } else if (lookForward()) {
             moveBot(MOVEMENT.FORWARD);
         } else if (lookLeft()) {
             moveBot(MOVEMENT.LEFT);
-            moveBot(MOVEMENT.FORWARD);
+            if (lookForward()) moveBot(MOVEMENT.FORWARD);
         } else {
             moveBot(MOVEMENT.RIGHT);
             moveBot(MOVEMENT.RIGHT);
