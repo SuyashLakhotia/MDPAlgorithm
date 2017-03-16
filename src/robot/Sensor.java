@@ -100,9 +100,14 @@ public class Sensor {
 
             exploredMap.getCell(row, col).setIsExplored(true);
 
-            if (sensorVal == i) exploredMap.setObstacleCell(row, col, true);
+            if (sensorVal == i) {
+                exploredMap.setObstacleCell(row, col, true);
+                break;
+            }
 
-            if (exploredMap.getCell(row, col).getIsObstacle()) break;
+            if (exploredMap.getCell(row, col).getIsObstacle()) {
+                exploredMap.setObstacleCell(row, col, false);
+            }
         }
     }
 }

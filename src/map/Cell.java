@@ -35,7 +35,13 @@ public class Cell {
     }
 
     public void setVirtualWall(boolean val) {
-        this.isVirtualWall = val;
+        if (val) {
+            this.isVirtualWall = true;
+        } else {
+            if (row != 0 && row != MapConstants.MAP_ROWS - 1 && col != 0 && col != MapConstants.MAP_COLS - 1) {
+                this.isVirtualWall = false;
+            }
+        }
     }
 
     public boolean getIsVirtualWall() {
