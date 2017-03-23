@@ -197,19 +197,17 @@ public class Simulator {
                     row = RobotConstants.START_ROW;
                     col = RobotConstants.START_COL;
                 } else {
-                    row = 1;
-                    col = 1;
-//                    while (true) {
-//                        System.out.println("Waiting for EX_START...");
-//                        String msg = comm.recvMsg();
-//                        String[] msgArr = msg.split(";");
-//                        if (msgArr[0].equals(CommMgr.EX_START)) {
-//                            String[] coords = msgArr[1].split(",");
-//                            row = Integer.parseInt(coords[0]);
-//                            col = Integer.parseInt(coords[1]);
-//                            break;
-//                        }
-//                    }
+                    while (true) {
+                        System.out.println("Waiting for EX_START...");
+                        String msg = comm.recvMsg();
+                        String[] msgArr = msg.split(";");
+                        if (msgArr[0].equals(CommMgr.EX_START)) {
+                            String[] coords = msgArr[1].split(",");
+                            row = Integer.parseInt(coords[0]);
+                            col = Integer.parseInt(coords[1]);
+                            break;
+                        }
+                    }
                 }
 
                 bot.setRobotPos(row, col);
