@@ -7,7 +7,6 @@ import robot.RobotConstants.MOVEMENT;
 import utils.CommMgr;
 import utils.MapDescriptor;
 
-import java.util.Scanner;
 import java.util.concurrent.TimeUnit;
 
 // @formatter:off
@@ -292,9 +291,6 @@ public class Robot {
             SRLeft.senseReal(explorationMap, result[3]);
             SRRight.senseReal(explorationMap, result[4]);
             LRLeft.senseReal(explorationMap, result[5]);
-
-//            Scanner scan = new Scanner(System.in);
-//            scan.nextLine();
 
             String[] mapStrings = MapDescriptor.generateMapDescriptor(explorationMap);
             comm.sendMsg(mapStrings[0] + " " + mapStrings[1], CommMgr.MAP_STRINGS);
