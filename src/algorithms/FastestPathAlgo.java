@@ -147,7 +147,7 @@ public class FastestPathAlgo {
     /**
      * Get the actual turning cost from one DIRECTION to another.
      */
-    private double turnCost(DIRECTION a, DIRECTION b) {
+    private double getTurnCost(DIRECTION a, DIRECTION b) {
         int numOfTurn = Math.abs(a.ordinal() - b.ordinal());
         if (numOfTurn > 2) {
             numOfTurn = numOfTurn % 2;
@@ -163,7 +163,7 @@ public class FastestPathAlgo {
 
         double turnCost;
         DIRECTION targetDir = getTargetDir(a.getRow(), a.getCol(), aDir, b);
-        turnCost = turnCost(aDir, targetDir);
+        turnCost = getTurnCost(aDir, targetDir);
 
         return moveCost + turnCost;
     }
