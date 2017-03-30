@@ -193,22 +193,8 @@ public class Simulator {
             protected Integer doInBackground() throws Exception {
                 int row, col;
 
-                if (!realRun) {
-                    row = RobotConstants.START_ROW;
-                    col = RobotConstants.START_COL;
-                } else {
-                    while (true) {
-                        System.out.println("Waiting for EX_START...");
-                        String msg = comm.recvMsg();
-                        String[] msgArr = msg.split(";");
-                        if (msgArr[0].equals(CommMgr.EX_START)) {
-                            String[] coords = msgArr[1].split(",");
-                            row = Integer.parseInt(coords[0]);
-                            col = Integer.parseInt(coords[1]);
-                            break;
-                        }
-                    }
-                }
+                row = RobotConstants.START_ROW;
+                col = RobotConstants.START_COL;
 
                 bot.setRobotPos(row, col);
                 exploredMap.repaint();

@@ -97,9 +97,10 @@ public class Robot {
     }
 
     /**
-     * Takes in a MOVEMENT and moves the robot accordingly by changing its position and direction.
+     * Takes in a MOVEMENT and moves the robot accordingly by changing its position and direction. Sends the movement
+     * if this.realBot is set.
      */
-    public void move(MOVEMENT m) {
+    public void move(MOVEMENT m, boolean sendMoveToAndroid) {
         if (!realBot) {
             // Emulate real movement by pausing execution.
             try {
@@ -153,10 +154,17 @@ public class Robot {
                 break;
         }
 
-        if (realBot) sendMovement(m);
+        if (realBot) sendMovement(m, sendMoveToAndroid);
         else System.out.println("Move: " + MOVEMENT.print(m));
 
         updateTouchedGoal();
+    }
+
+    /**
+     * Overloaded method that calls this.move(MOVEMENT m, boolean sendMoveToAndroid = true).
+     */
+    public void move(MOVEMENT m) {
+        this.move(m, true);
     }
 
     /**
@@ -195,10 +203,10 @@ public class Robot {
     /**
      * Uses the CommMgr to send the next movement to the robot.
      */
-    private void sendMovement(MOVEMENT m) {
+    private void sendMovement(MOVEMENT m, boolean sendMoveToAndroid) {
         CommMgr comm = CommMgr.getCommMgr();
         comm.sendMsg(MOVEMENT.print(m) + "", CommMgr.INSTRUCTIONS);
-        if (m != MOVEMENT.CALIBRATE) {
+        if (m != MOVEMENT.CALIBRATE && sendMoveToAndroid) {
             comm.sendMsg(this.getRobotPosRow() + "," + this.getRobotPosCol() + "," + DIRECTION.print(this.getRobotCurDir()), CommMgr.BOT_POS);
         }
     }

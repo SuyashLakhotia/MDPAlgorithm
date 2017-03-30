@@ -40,21 +40,42 @@ public class ExplorationAlgo {
      * Main method that is called to start the exploration.
      */
     public void runExploration() {
+        if (bot.getRealBot()) {
+            System.out.println("Starting calibration...");
+
+            CommMgr.getCommMgr().recvMsg();
+            if (bot.getRealBot()) {
+                bot.move(MOVEMENT.LEFT, false);
+                CommMgr.getCommMgr().recvMsg();
+                bot.move(MOVEMENT.CALIBRATE, false);
+                CommMgr.getCommMgr().recvMsg();
+                bot.move(MOVEMENT.LEFT, false);
+                CommMgr.getCommMgr().recvMsg();
+                bot.move(MOVEMENT.CALIBRATE, false);
+                CommMgr.getCommMgr().recvMsg();
+                bot.move(MOVEMENT.RIGHT, false);
+                CommMgr.getCommMgr().recvMsg();
+                bot.move(MOVEMENT.CALIBRATE, false);
+                CommMgr.getCommMgr().recvMsg();
+                bot.move(MOVEMENT.RIGHT, false);
+            }
+
+            while (true) {
+                System.out.println("Waiting for EX_START...");
+                String msg = CommMgr.getCommMgr().recvMsg();
+                String[] msgArr = msg.split(";");
+                if (msgArr[0].equals(CommMgr.EX_START)) break;
+            }
+        }
+
+
         System.out.println("Starting exploration...");
 
         startTime = System.currentTimeMillis();
         endTime = startTime + (timeLimit * 1000);
 
+        CommMgr.getCommMgr().sendMsg(null, CommMgr.BOT_START);
         senseAndRepaint();
-        if (bot.getRealBot()) {
-            moveBot(MOVEMENT.LEFT);
-            moveBot(MOVEMENT.CALIBRATE);
-            moveBot(MOVEMENT.LEFT);
-            moveBot(MOVEMENT.CALIBRATE);
-            moveBot(MOVEMENT.RIGHT);
-            moveBot(MOVEMENT.CALIBRATE);
-            moveBot(MOVEMENT.RIGHT);
-        }
 
         areaExplored = calculateAreaExplored();
         System.out.println("Explored Area: " + areaExplored);
@@ -203,20 +224,21 @@ public class ExplorationAlgo {
         FastestPathAlgo returnToStart = new FastestPathAlgo(exMap, bot, realMap);
         returnToStart.runFastestPath(RobotConstants.START_ROW, RobotConstants.START_COL);
 
-        if (bot.getRealBot()) {
-            turnBotDirection(DIRECTION.WEST);
-            moveBot(MOVEMENT.CALIBRATE);
-            turnBotDirection(DIRECTION.SOUTH);
-            moveBot(MOVEMENT.CALIBRATE);
-        }
-
-        turnBotDirection(DIRECTION.NORTH);
-
         System.out.println("Exploration complete!");
         areaExplored = calculateAreaExplored();
         System.out.printf("%.2f%% Coverage", (areaExplored / 300.0) * 100.0);
         System.out.println(", " + areaExplored + " Cells");
         System.out.println((System.currentTimeMillis() - startTime) / 1000 + " Seconds");
+
+        if (bot.getRealBot()) {
+            turnBotDirection(DIRECTION.WEST);
+            moveBot(MOVEMENT.CALIBRATE);
+            turnBotDirection(DIRECTION.SOUTH);
+            moveBot(MOVEMENT.CALIBRATE);
+            turnBotDirection(DIRECTION.WEST);
+            moveBot(MOVEMENT.CALIBRATE);
+        }
+        turnBotDirection(DIRECTION.NORTH);
     }
 
     /**
