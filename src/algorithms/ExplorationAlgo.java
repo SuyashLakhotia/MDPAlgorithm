@@ -45,8 +45,10 @@ public class ExplorationAlgo {
         startTime = System.currentTimeMillis();
         endTime = startTime + (timeLimit * 1000);
 
+        senseAndRepaint();
         if (bot.getRealBot()) {
             moveBot(MOVEMENT.LEFT);
+            moveBot(MOVEMENT.CALIBRATE);
             moveBot(MOVEMENT.LEFT);
             moveBot(MOVEMENT.CALIBRATE);
             moveBot(MOVEMENT.RIGHT);
@@ -54,7 +56,6 @@ public class ExplorationAlgo {
             moveBot(MOVEMENT.RIGHT);
         }
 
-        senseAndRepaint();
         areaExplored = calculateAreaExplored();
         System.out.println("Explored Area: " + areaExplored);
 
@@ -271,28 +272,7 @@ public class ExplorationAlgo {
         if (bot.getRealBot() && !calibrationMode) {
             calibrationMode = true;
 
-            if (((bot.getRobotPosRow() == 1 && bot.getRobotPosCol() == 1) || (bot.getRobotPosRow() == 1 && bot.getRobotPosCol() == 13) || (bot.getRobotPosRow() == 18 && bot.getRobotPosCol() == 1) || (bot.getRobotPosRow() == 18 && bot.getRobotPosCol() == 13)) && lastCalibrate > 2) {
-                lastCalibrate = 0;
-                DIRECTION origDir = bot.getRobotCurDir();
-
-                if (bot.getRobotPosCol() == 1) {
-                    turnBotDirection(DIRECTION.WEST);
-                    moveBot(MOVEMENT.CALIBRATE);
-                } else if (bot.getRobotPosCol() == 13) {
-                    turnBotDirection(DIRECTION.EAST);
-                    moveBot(MOVEMENT.CALIBRATE);
-                }
-
-                if (bot.getRobotPosRow() == 1) {
-                    turnBotDirection(DIRECTION.SOUTH);
-                    moveBot(MOVEMENT.CALIBRATE);
-                } else if (bot.getRobotPosRow() == 18) {
-                    turnBotDirection(DIRECTION.NORTH);
-                    moveBot(MOVEMENT.CALIBRATE);
-                }
-
-                turnBotDirection(origDir);
-            } else if (canCalibrateOnTheSpot(bot.getRobotCurDir())) {
+            if (canCalibrateOnTheSpot(bot.getRobotCurDir())) {
                 lastCalibrate = 0;
                 moveBot(MOVEMENT.CALIBRATE);
             } else {
