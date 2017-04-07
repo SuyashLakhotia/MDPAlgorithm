@@ -45,14 +45,14 @@ public class Map extends JPanel {
     /**
      * Returns true if the row and column values are in the start zone.
      */
-    public boolean inStartZone(int row, int col) {
+    private boolean inStartZone(int row, int col) {
         return row >= 0 && row <= 2 && col >= 0 && col <= 2;
     }
 
     /**
      * Returns true if the row and column values are in the goal zone.
      */
-    public boolean inGoalZone(int row, int col) {
+    private boolean inGoalZone(int row, int col) {
         return (row <= MapConstants.GOAL_ROW + 1 && row >= MapConstants.GOAL_ROW - 1 && col <= MapConstants.GOAL_COL + 1 && col >= MapConstants.GOAL_COL - 1);
     }
 

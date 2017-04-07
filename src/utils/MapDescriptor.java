@@ -56,21 +56,6 @@ public class MapDescriptor {
     }
 
     /**
-     * Helper method to convert a hex digit to a binary string of four digits.
-     */
-    private static String hexToBin(char hex) {
-        int dec = Integer.parseInt(hex + "", 16);
-
-        char[] buf = new char[4];
-        buf[3] = (dec & 1) == 1 ? '1' : '0';
-        buf[2] = (dec & 2) == 2 ? '1' : '0';
-        buf[1] = (dec & 4) == 4 ? '1' : '0';
-        buf[0] = (dec & 8) == 8 ? '1' : '0';
-
-        return new String(buf);
-    }
-
-    /**
      * Generates Part 1 & Part 2 map descriptor strings from the passed Map object.
      */
     public static String[] generateMapDescriptor(Map map) {

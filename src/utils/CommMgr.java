@@ -11,8 +11,6 @@ import java.net.UnknownHostException;
  */
 
 public class CommMgr {
-    private final String HOST = "192.168.2.1";
-    private final int PORT = 8008;
 
     public static final String EX_START = "EX_START";       // Android --> PC
     public static final String FP_START = "FP_START";       // Android --> PC
@@ -42,6 +40,8 @@ public class CommMgr {
         System.out.println("Opening connection...");
 
         try {
+            String HOST = "192.168.2.1";
+            int PORT = 8008;
             conn = new Socket(HOST, PORT);
 
             writer = new BufferedWriter(new OutputStreamWriter(new BufferedOutputStream(conn.getOutputStream())));

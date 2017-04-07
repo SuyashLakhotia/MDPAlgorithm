@@ -15,7 +15,7 @@ public class Sensor {
     private int sensorPosRow;
     private int sensorPosCol;
     private DIRECTION sensorDir;
-    private String id;
+    private final String id;
 
     public Sensor(int lowerRange, int upperRange, int row, int col, DIRECTION dir, String id) {
         this.lowerRange = lowerRange;

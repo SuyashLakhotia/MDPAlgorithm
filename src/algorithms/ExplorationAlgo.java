@@ -365,7 +365,7 @@ public class ExplorationAlgo {
      * Turns the bot in the needed direction and sends the CALIBRATE movement. Once calibrated, the bot is turned back
      * to its original direction.
      */
-    public void calibrateBot(DIRECTION targetDir) {
+    private void calibrateBot(DIRECTION targetDir) {
         DIRECTION origDir = bot.getRobotCurDir();
 
         turnBotDirection(targetDir);
@@ -376,7 +376,7 @@ public class ExplorationAlgo {
     /**
      * Turns the robot to the required direction.
      */
-    public void turnBotDirection(DIRECTION targetDir) {
+    private void turnBotDirection(DIRECTION targetDir) {
         int numOfTurn = Math.abs(bot.getRobotCurDir().ordinal() - targetDir.ordinal());
         if (numOfTurn > 2) numOfTurn = numOfTurn % 2;
 

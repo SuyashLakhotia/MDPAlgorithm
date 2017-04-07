@@ -40,7 +40,7 @@ public class Robot {
     private final Sensor SRRight;           // east-facing right SR
     private final Sensor LRLeft;            // west-facing left LR
     private boolean touchedGoal;
-    private boolean realBot;
+    private final boolean realBot;
 
     public Robot(int row, int col, boolean realBot) {
         posRow = row;
