@@ -21,7 +21,7 @@ public class MapDescriptor {
      */
     public static void loadMapFromDisk(Map map, String filename) {
         try {
-            InputStream inputStream = new FileInputStream(filename + ".txt");
+            InputStream inputStream = new FileInputStream("maps/" + filename + ".txt");
             BufferedReader buf = new BufferedReader(new InputStreamReader(inputStream));
 
             String line = buf.readLine();
