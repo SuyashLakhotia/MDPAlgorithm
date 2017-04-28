@@ -68,13 +68,14 @@ public class ExplorationAlgo {
             }
         }
 
-
         System.out.println("Starting exploration...");
 
         startTime = System.currentTimeMillis();
         endTime = startTime + (timeLimit * 1000);
 
-        CommMgr.getCommMgr().sendMsg(null, CommMgr.BOT_START);
+        if (bot.getRealBot()) {
+            CommMgr.getCommMgr().sendMsg(null, CommMgr.BOT_START);
+        }
         senseAndRepaint();
 
         areaExplored = calculateAreaExplored();
