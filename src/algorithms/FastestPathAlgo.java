@@ -116,9 +116,9 @@ public class FastestPathAlgo {
 
         if (movementCost == 0) return 0;
 
-        // Heuristic: If b is not in the same row and column, one turn will be needed.
+        // Heuristic: If b is not in the same row or column, one turn will be needed.
         double turnCost = 0;
-        if (goalCol - b.getCol() != 0 && goalRow - b.getRow() != 0) {
+        if (goalCol - b.getCol() != 0 || goalRow - b.getRow() != 0) {
             turnCost = RobotConstants.TURN_COST;
         }
 

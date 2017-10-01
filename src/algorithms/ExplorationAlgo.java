@@ -102,8 +102,7 @@ public class ExplorationAlgo {
                     break;
                 }
             }
-        }
-        while (areaExplored <= coverageLimit && System.currentTimeMillis() <= endTime);
+        } while (areaExplored <= coverageLimit && System.currentTimeMillis() <= endTime);
 
         goHome();
     }
