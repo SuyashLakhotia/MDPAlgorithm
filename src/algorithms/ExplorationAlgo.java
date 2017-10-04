@@ -17,7 +17,7 @@ import utils.CommMgr;
  */
 
 public class ExplorationAlgo {
-    private final Map exMap;
+    private final Map exploredMap;
     private final Map realMap;
     private final Robot bot;
     private final int coverageLimit;
@@ -28,8 +28,8 @@ public class ExplorationAlgo {
     private int lastCalibrate;
     private boolean calibrationMode;
 
-    public ExplorationAlgo(Map exMap, Map realMap, Robot bot, int coverageLimit, int timeLimit) {
-        this.exMap = exMap;
+    public ExplorationAlgo(Map exploredMap, Map realMap, Robot bot, int coverageLimit, int timeLimit) {
+        this.exploredMap = exploredMap;
         this.realMap = realMap;
         this.bot = bot;
         this.coverageLimit = coverageLimit;
@@ -217,11 +217,11 @@ public class ExplorationAlgo {
      */
     private void goHome() {
         if (!bot.getTouchedGoal() && coverageLimit == 300 && timeLimit == 3600) {
-            FastestPathAlgo goToGoal = new FastestPathAlgo(exMap, bot, realMap);
+            FastestPathAlgo goToGoal = new FastestPathAlgo(exploredMap, bot, realMap);
             goToGoal.runFastestPath(RobotConstants.GOAL_ROW, RobotConstants.GOAL_COL);
         }
 
-        FastestPathAlgo returnToStart = new FastestPathAlgo(exMap, bot, realMap);
+        FastestPathAlgo returnToStart = new FastestPathAlgo(exploredMap, bot, realMap);
         returnToStart.runFastestPath(RobotConstants.START_ROW, RobotConstants.START_COL);
 
         System.out.println("Exploration complete!");
@@ -245,8 +245,8 @@ public class ExplorationAlgo {
      * Returns true for cells that are explored and not obstacles.
      */
     private boolean isExploredNotObstacle(int r, int c) {
-        if (exMap.checkValidCoordinates(r, c)) {
-            Cell tmp = exMap.getCell(r, c);
+        if (exploredMap.checkValidCoordinates(r, c)) {
+            Cell tmp = exploredMap.getCell(r, c);
             return (tmp.getIsExplored() && !tmp.getIsObstacle());
         }
         return false;
@@ -256,8 +256,8 @@ public class ExplorationAlgo {
      * Returns true for cells that are explored, not virtual walls and not obstacles.
      */
     private boolean isExploredAndFree(int r, int c) {
-        if (exMap.checkValidCoordinates(r, c)) {
-            Cell b = exMap.getCell(r, c);
+        if (exploredMap.checkValidCoordinates(r, c)) {
+            Cell b = exploredMap.getCell(r, c);
             return (b.getIsExplored() && !b.getIsVirtualWall() && !b.getIsObstacle());
         }
         return false;
@@ -270,7 +270,7 @@ public class ExplorationAlgo {
         int result = 0;
         for (int r = 0; r < MapConstants.MAP_ROWS; r++) {
             for (int c = 0; c < MapConstants.MAP_COLS; c++) {
-                if (exMap.getCell(r, c).getIsExplored()) {
+                if (exploredMap.getCell(r, c).getIsExplored()) {
                     result++;
                 }
             }
@@ -283,7 +283,7 @@ public class ExplorationAlgo {
      */
     private void moveBot(MOVEMENT m) {
         bot.move(m);
-        exMap.repaint();
+        exploredMap.repaint();
         if (m != MOVEMENT.CALIBRATE) {
             senseAndRepaint();
         } else {
@@ -317,8 +317,8 @@ public class ExplorationAlgo {
      */
     private void senseAndRepaint() {
         bot.setSensors();
-        bot.sense(exMap, realMap);
-        exMap.repaint();
+        bot.sense(exploredMap, realMap);
+        exploredMap.repaint();
     }
 
     /**
@@ -330,13 +330,13 @@ public class ExplorationAlgo {
 
         switch (botDir) {
             case NORTH:
-                return exMap.getIsObstacleOrWall(row + 2, col - 1) && exMap.getIsObstacleOrWall(row + 2, col) && exMap.getIsObstacleOrWall(row + 2, col + 1);
+                return exploredMap.getIsObstacleOrWall(row + 2, col - 1) && exploredMap.getIsObstacleOrWall(row + 2, col) && exploredMap.getIsObstacleOrWall(row + 2, col + 1);
             case EAST:
-                return exMap.getIsObstacleOrWall(row + 1, col + 2) && exMap.getIsObstacleOrWall(row, col + 2) && exMap.getIsObstacleOrWall(row - 1, col + 2);
+                return exploredMap.getIsObstacleOrWall(row + 1, col + 2) && exploredMap.getIsObstacleOrWall(row, col + 2) && exploredMap.getIsObstacleOrWall(row - 1, col + 2);
             case SOUTH:
-                return exMap.getIsObstacleOrWall(row - 2, col - 1) && exMap.getIsObstacleOrWall(row - 2, col) && exMap.getIsObstacleOrWall(row - 2, col + 1);
+                return exploredMap.getIsObstacleOrWall(row - 2, col - 1) && exploredMap.getIsObstacleOrWall(row - 2, col) && exploredMap.getIsObstacleOrWall(row - 2, col + 1);
             case WEST:
-                return exMap.getIsObstacleOrWall(row + 1, col - 2) && exMap.getIsObstacleOrWall(row, col - 2) && exMap.getIsObstacleOrWall(row - 1, col - 2);
+                return exploredMap.getIsObstacleOrWall(row + 1, col - 2) && exploredMap.getIsObstacleOrWall(row, col - 2) && exploredMap.getIsObstacleOrWall(row - 1, col - 2);
         }
 
         return false;

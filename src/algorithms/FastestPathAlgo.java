@@ -32,20 +32,20 @@ public class FastestPathAlgo {
     private DIRECTION curDir;               // current direction of robot
     private double[][] gCosts;              // array of real cost from START to [row][col] i.e. g(n)
     private Robot bot;
-    private Map map;
+    private Map exploredMap;
     private final Map realMap;
     private int loopCount;
     private boolean explorationMode;
 
-    public FastestPathAlgo(Map map, Robot bot) {
+    public FastestPathAlgo(Map exploredMap, Robot bot) {
         this.realMap = null;
-        initObject(map, bot);
+        initObject(exploredMap, bot);
     }
 
-    public FastestPathAlgo(Map map, Robot bot, Map realMap) {
+    public FastestPathAlgo(Map exploredMap, Robot bot, Map realMap) {
         this.realMap = realMap;
         this.explorationMode = true;
-        initObject(map, bot);
+        initObject(exploredMap, bot);
     }
 
     /**
@@ -53,7 +53,7 @@ public class FastestPathAlgo {
      */
     private void initObject(Map map, Robot bot) {
         this.bot = bot;
-        this.map = map;
+        this.exploredMap = map;
         this.toVisit = new ArrayList<>();
         this.visited = new ArrayList<>();
         this.parents = new HashMap<>();
@@ -69,7 +69,7 @@ public class FastestPathAlgo {
                 if (!canBeVisited(cell)) {
                     gCosts[i][j] = RobotConstants.INFINITE_COST;
                 } else {
-                    gCosts[i][j] = -1;
+                    gCosts[i][j] = 0;
                 }
             }
         }
@@ -189,7 +189,7 @@ public class FastestPathAlgo {
             visited.add(current);       // add current to visited
             toVisit.remove(current);    // remove current from toVisit
 
-            if (visited.contains(map.getCell(goalRow, goalCol))) {
+            if (visited.contains(exploredMap.getCell(goalRow, goalCol))) {
                 System.out.println("Goal visited. Path found!");
                 path = getPath(goalRow, goalCol);
                 printFastestPath(path);
@@ -197,26 +197,26 @@ public class FastestPathAlgo {
             }
 
             // Setup neighbors of current cell. [Top, Bottom, Left, Right].
-            if (map.checkValidCoordinates(current.getRow() + 1, current.getCol())) {
-                neighbors[0] = map.getCell(current.getRow() + 1, current.getCol());
+            if (exploredMap.checkValidCoordinates(current.getRow() + 1, current.getCol())) {
+                neighbors[0] = exploredMap.getCell(current.getRow() + 1, current.getCol());
                 if (!canBeVisited(neighbors[0])) {
                     neighbors[0] = null;
                 }
             }
-            if (map.checkValidCoordinates(current.getRow() - 1, current.getCol())) {
-                neighbors[1] = map.getCell(current.getRow() - 1, current.getCol());
+            if (exploredMap.checkValidCoordinates(current.getRow() - 1, current.getCol())) {
+                neighbors[1] = exploredMap.getCell(current.getRow() - 1, current.getCol());
                 if (!canBeVisited(neighbors[1])) {
                     neighbors[1] = null;
                 }
             }
-            if (map.checkValidCoordinates(current.getRow(), current.getCol() - 1)) {
-                neighbors[2] = map.getCell(current.getRow(), current.getCol() - 1);
+            if (exploredMap.checkValidCoordinates(current.getRow(), current.getCol() - 1)) {
+                neighbors[2] = exploredMap.getCell(current.getRow(), current.getCol() - 1);
                 if (!canBeVisited(neighbors[2])) {
                     neighbors[2] = null;
                 }
             }
-            if (map.checkValidCoordinates(current.getRow(), current.getCol() + 1)) {
-                neighbors[3] = map.getCell(current.getRow(), current.getCol() + 1);
+            if (exploredMap.checkValidCoordinates(current.getRow(), current.getCol() + 1)) {
+                neighbors[3] = exploredMap.getCell(current.getRow(), current.getCol() + 1);
                 if (!canBeVisited(neighbors[3])) {
                     neighbors[3] = null;
                 }
@@ -254,7 +254,7 @@ public class FastestPathAlgo {
      */
     private Stack<Cell> getPath(int goalRow, int goalCol) {
         Stack<Cell> actualPath = new Stack<>();
-        Cell temp = map.getCell(goalRow, goalCol);
+        Cell temp = exploredMap.getCell(goalRow, goalCol);
 
         while (true) {
             actualPath.push(temp);
@@ -311,13 +311,13 @@ public class FastestPathAlgo {
                 }
 
                 bot.move(x);
-                this.map.repaint();
+                this.exploredMap.repaint();
 
-                // During exploration, use sensor data to update map.
+                // During exploration, use sensor data to update exploredMap.
                 if (explorationMode) {
                     bot.setSensors();
-                    bot.sense(this.map, this.realMap);
-                    this.map.repaint();
+                    bot.sense(this.exploredMap, this.realMap);
+                    this.exploredMap.repaint();
                 }
             }
         } else {
@@ -328,23 +328,23 @@ public class FastestPathAlgo {
                     if (fCount == 10) {
                         bot.moveForwardMultiple(fCount);
                         fCount = 0;
-                        map.repaint();
+                        exploredMap.repaint();
                     }
                 } else if (x == MOVEMENT.RIGHT || x == MOVEMENT.LEFT) {
                     if (fCount > 0) {
                         bot.moveForwardMultiple(fCount);
                         fCount = 0;
-                        map.repaint();
+                        exploredMap.repaint();
                     }
 
                     bot.move(x);
-                    map.repaint();
+                    exploredMap.repaint();
                 }
             }
 
             if (fCount > 0) {
                 bot.moveForwardMultiple(fCount);
-                map.repaint();
+                exploredMap.repaint();
             }
         }
 
@@ -361,22 +361,22 @@ public class FastestPathAlgo {
 
         switch (bot.getRobotCurDir()) {
             case NORTH:
-                if (!map.isObstacleCell(row + 2, col - 1) && !map.isObstacleCell(row + 2, col) && !map.isObstacleCell(row + 2, col + 1)) {
+                if (!exploredMap.isObstacleCell(row + 2, col - 1) && !exploredMap.isObstacleCell(row + 2, col) && !exploredMap.isObstacleCell(row + 2, col + 1)) {
                     return true;
                 }
                 break;
             case EAST:
-                if (!map.isObstacleCell(row + 1, col + 2) && !map.isObstacleCell(row, col + 2) && !map.isObstacleCell(row - 1, col + 2)) {
+                if (!exploredMap.isObstacleCell(row + 1, col + 2) && !exploredMap.isObstacleCell(row, col + 2) && !exploredMap.isObstacleCell(row - 1, col + 2)) {
                     return true;
                 }
                 break;
             case SOUTH:
-                if (!map.isObstacleCell(row - 2, col - 1) && !map.isObstacleCell(row - 2, col) && !map.isObstacleCell(row - 2, col + 1)) {
+                if (!exploredMap.isObstacleCell(row - 2, col - 1) && !exploredMap.isObstacleCell(row - 2, col) && !exploredMap.isObstacleCell(row - 2, col + 1)) {
                     return true;
                 }
                 break;
             case WEST:
-                if (!map.isObstacleCell(row + 1, col - 2) && !map.isObstacleCell(row, col - 2) && !map.isObstacleCell(row - 1, col - 2)) {
+                if (!exploredMap.isObstacleCell(row + 1, col - 2) && !exploredMap.isObstacleCell(row, col - 2) && !exploredMap.isObstacleCell(row - 1, col - 2)) {
                     return true;
                 }
                 break;
