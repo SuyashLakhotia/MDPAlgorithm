@@ -278,7 +278,6 @@ public class Robot {
             result[3] = SRLeft.sense(explorationMap, realMap);
             result[4] = SRRight.sense(explorationMap, realMap);
             result[5] = LRLeft.sense(explorationMap, realMap);
-
         } else {
             CommMgr comm = CommMgr.getCommMgr();
             String msg = comm.recvMsg();
