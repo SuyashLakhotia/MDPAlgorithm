@@ -1,7 +1,7 @@
 # IntelliJ IDEA
 .idea/
 out/
-HackerRank.iml
+MDPAlgorithm.iml
 
 # Java Class Files
 *.class
